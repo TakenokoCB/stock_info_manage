@@ -144,55 +144,103 @@ npm run dev
 
 ## 📊 データ構造
 
-### モックデータ形式
+### ポートフォリオデータ
 
-プロジェクトは実際のAPIと統合可能な構造でダミーデータを定義しています。
+`data/` ディレクトリに保有投資商品のデータを管理します。
 
-#### 資産データ（Asset）
+| ファイル | 説明 | Git |
+|----------|------|-----|
+| `data/types.ts` | 型定義（全資産タイプ対応） | ✅ アップ |
+| `data/sampleData.ts` | サンプルデータ | ✅ アップ |
+| `data/portfolioData.ts` | 実際の保有データ（マスター） | ❌ 除外 |
+| `data/original/` | 証券会社からのCSVファイル | ❌ 除外 |
+
+### 資産タイプ
 
 ```typescript
-interface Asset {
-  id: string;
-  symbol: string;           // 銘柄コード（例: "7203", "BTC"）
-  name: string;             // 英語名
-  nameJa: string;           // 日本語名
-  type: 'stock' | 'crypto' | 'commodity';
-  price: number;            // 現在価格
-  change24h: number;        // 24時間変動額
-  changePercent24h: number; // 24時間変動率
-  volume24h: number;        // 出来高
-  high24h: number;          // 24時間高値
-  low24h: number;           // 24時間安値
+type AssetType = 
+  | 'domestic_stock'    // 国内株式
+  | 'foreign_stock'     // 海外株式
+  | 'investment_trust'  // 投資信託
+  | 'crypto'            // 仮想通貨
+  | 'bond'              // 債券
+  | 'commodity';        // コモディティ
+```
+
+### 主要インターフェース
+
+#### 国内株式（DomesticStock）
+
+```typescript
+interface DomesticStock {
+  type: 'domestic_stock';
+  broker: 'sbi' | 'rakuten' | 'other';
+  account: 'specific' | 'general' | 'nisa_growth' | 'nisa_tsumitate';
+  code: string;           // 銘柄コード
+  name: string;           // 銘柄名
+  quantity: number;       // 保有株数
+  avgPrice: number;       // 平均取得単価（円）
+  currentPrice: number;   // 現在値（円）
+  marketValue: number;    // 評価額（円）
+  profitLoss: number;     // 評価損益（円）
+  profitLossPercent: number;
 }
 ```
 
-#### ニュースデータ（NewsItem）
+#### 海外株式（ForeignStock）
 
 ```typescript
-interface NewsItem {
-  id: string;
-  title: string;
-  summary: string[];        // AI要約（3ポイント）
-  source: string;           // 情報源
-  timestamp: string;        // ISO 8601形式
-  sentiment: 'positive' | 'negative' | 'neutral';
-  relatedAssets: string[];  // 関連銘柄コード
-  aiScore: number;          // AIスコア（0-100）
+interface ForeignStock {
+  type: 'foreign_stock';
+  ticker: string;         // ティッカー
+  name: string;           // 銘柄名
+  quantity: number;       // 保有株数
+  avgPriceUsd: number;    // 取得単価（USD）
+  currentPriceUsd: number;
+  marketValueJpy: number; // 円換算評価額
+  profitLossJpy: number;  // 円換算損益
 }
 ```
 
-#### センチメントデータ（SentimentData）
+#### 投資信託（InvestmentTrust）
 
 ```typescript
-interface SentimentData {
-  assetId: string;
-  symbol: string;
-  twitterMentions: number;  // X(Twitter)メンション数
-  redditMentions: number;   // 掲示板メンション数
-  overallSentiment: number; // 総合センチメント（-100〜100）
-  changeFromYesterday: number;
-  trending: boolean;        // トレンド中か
+interface InvestmentTrust {
+  type: 'investment_trust';
+  name: string;           // ファンド名
+  units: number;          // 保有口数
+  avgNavPrice: number;    // 平均取得単価
+  currentNavPrice: number; // 基準価額
+  marketValue: number;    // 評価額
+  dividendMethod: 'reinvest' | 'receive';
 }
+```
+
+#### 仮想通貨（Crypto）
+
+```typescript
+interface Crypto {
+  type: 'crypto';
+  symbol: string;         // BTC, ETH等
+  quantity: number;       // 保有数量
+  avgPrice: number;       // 平均取得単価（円）
+  currentPrice: number;   // 現在値（円）
+  marketValue: number;    // 評価額（円）
+}
+```
+
+### サンプルデータの使用
+
+```typescript
+import { samplePortfolio } from './data/sampleData';
+
+// ポートフォリオ全体の評価額
+console.log(samplePortfolio.summary.totalMarketValue);
+
+// 国内株式のみ取得
+const domesticStocks = samplePortfolio.assets.filter(
+  asset => asset.type === 'domestic_stock'
+);
 ```
 
 ---

@@ -32,3 +32,7 @@ Thumbs.db
 # Cache
 .eslintcache
 .cache/
+
+# Portfolio Data (個人データ)
+data/original/
+data/portfolioData.ts
