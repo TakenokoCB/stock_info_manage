@@ -1,0 +1,134 @@
+.dividend-calendar {
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.calendar-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.calendar-stat .stat-value {
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent-primary);
+}
+
+.calendar-stat .stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.calendar-chart {
+    flex: 1;
+    min-height: 280px;
+}
+
+.calendar-footer {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-primary);
+    margin-top: var(--spacing-md);
+}
+
+.peak-month {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.85rem;
+}
+
+.peak-label {
+    color: var(--text-muted);
+}
+
+.peak-value {
+    font-weight: 600;
+    color: var(--accent-secondary);
+}
+
+.peak-amount {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+}
+
+/* Custom Tooltip Styles */
+.dividend-tooltip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.tooltip-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.tooltip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.tooltip-dot.stocks {
+    background: var(--accent-secondary);
+}
+
+.tooltip-dot.staking {
+    background: var(--accent-primary);
+}
+
+.tooltip-value {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-left: auto;
+}
+
+.tooltip-total {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--border-primary);
+}
+
+.tooltip-total .tooltip-value {
+    color: var(--accent-primary);
+}
+
+/* Recharts Legend Styling */
+.recharts-legend-wrapper {
+    font-size: 0.75rem !important;
+}
+
+.recharts-legend-item-text {
+    color: var(--text-secondary) !important;
+}

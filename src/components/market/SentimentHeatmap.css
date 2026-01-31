@@ -1,0 +1,159 @@
+.sentiment-heatmap {
+    height: 100%;
+}
+
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.heatmap-cell {
+    background: linear-gradient(135deg,
+            var(--cell-color) 0%,
+            color-mix(in srgb, var(--cell-color) 40%, var(--bg-card)) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.heatmap-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.4) 100%);
+    pointer-events: none;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+}
+
+.heatmap-cell.trending {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 165, 0, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 15px 2px rgba(255, 165, 0, 0.3);
+    }
+}
+
+.cell-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+    z-index: 1;
+}
+
+.cell-symbol {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.trending-icon {
+    color: var(--accent-warning);
+    animation: flicker 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes flicker {
+    from {
+        opacity: 0.7;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.cell-sentiment {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+    z-index: 1;
+}
+
+.sentiment-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sentiment-label {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cell-change {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    position: relative;
+    z-index: 1;
+}
+
+.change-icon {
+    width: 12px;
+    height: 12px;
+}
+
+.change-icon.positive,
+.cell-change .positive {
+    color: var(--sentiment-positive);
+}
+
+.change-icon.negative,
+.cell-change .negative {
+    color: var(--sentiment-negative);
+}
+
+.cell-mentions {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+    z-index: 1;
+}
+
+.mention-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mention-label {
+    font-weight: 500;
+}
+
+.mention-value {
+    font-family: var(--font-mono);
+}

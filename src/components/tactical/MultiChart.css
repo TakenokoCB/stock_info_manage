@@ -1,0 +1,132 @@
+.multi-chart {
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.asset-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.asset-toggle:hover {
+    border-color: var(--toggle-color);
+    color: var(--text-primary);
+}
+
+.asset-toggle.active {
+    background: color-mix(in srgb, var(--toggle-color) 15%, var(--bg-input));
+    border-color: var(--toggle-color);
+    color: var(--text-primary);
+}
+
+.toggle-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.chart-container {
+    flex: 1;
+    min-height: 350px;
+}
+
+.chart-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-primary);
+    margin-top: var(--spacing-md);
+}
+
+.chart-period {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.chart-legend {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.8rem;
+}
+
+.legend-label {
+    color: var(--text-secondary);
+}
+
+.legend-change {
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+/* Chart Tooltip */
+.chart-tooltip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+}
+
+.tooltip-date {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.tooltip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.tooltip-name {
+    color: var(--text-secondary);
+}
+
+.tooltip-value {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-left: auto;
+}
+
+/* Recharts Legend Styling */
+.recharts-legend-wrapper {
+    font-size: 0.75rem !important;
+}
+
+.recharts-legend-item-text {
+    color: var(--text-secondary) !important;
+}
