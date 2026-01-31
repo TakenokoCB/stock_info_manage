@@ -35,7 +35,38 @@ const navItems = [
     },
 ];
 
+import { useState, useEffect } from 'react';
+import { getMarketStatus, MarketInfo } from '../../utils/marketHours';
+
+// ... (existing imports)
+
 export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
+    const [marketInfo, setMarketInfo] = useState<MarketInfo[]>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        // Initial fetch
+        setMarketInfo(getMarketStatus());
+
+        // Update status every minute
+        const statusTimer = setInterval(() => {
+            setMarketInfo(getMarketStatus());
+        }, 60000);
+
+        // Cycle display every 3 seconds
+        const cycleTimer = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % 3); // Cycle 0, 1, 2
+        }, 4000);
+
+        return () => {
+            clearInterval(statusTimer);
+            clearInterval(cycleTimer);
+        };
+    }, []);
+
+    const currentMarket = marketInfo[currentIndex] || { name: 'Loading...', status: 'closed' };
+    const isMarketOpen = currentMarket.status === 'open';
+
     return (
         <aside className="sidebar">
             <div className="sidebar-header">
@@ -69,11 +100,13 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
 
             <div className="sidebar-footer">
                 <div className="market-status">
-                    <span className="status-indicator live"></span>
-                    <span className="status-text">東証 開場中</span>
+                    <span className={`status-indicator ${isMarketOpen ? 'live' : 'closed'}`}></span>
+                    <span className="status-text">
+                        {currentMarket.name} {isMarketOpen ? '開場中' : '閉場'}
+                    </span>
                 </div>
                 <div className="last-update">
-                    最終更新: {new Date().toLocaleTimeString('ja-JP')}
+                    最終更新: {new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
                 </div>
             </div>
         </aside>
