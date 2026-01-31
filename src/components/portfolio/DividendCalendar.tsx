@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 <p className="tooltip-label">{label}の配当予測</p>
                 <div className="tooltip-total-section">
                     <span className="tooltip-total-label">合計</span>
-                    <span className="tooltip-total-value">¥{total.toLocaleString()}</span>
+                    <span className="tooltip-total-value">¥{Math.floor(total).toLocaleString()}</span>
                 </div>
 
                 {data.breakdown && (
@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                                     <span className={`dot ${item.type}`}></span>
                                     {item.name}
                                 </div>
-                                <span className="breakdown-value">¥{item.value.toLocaleString()}</span>
+                                <span className="breakdown-value">¥{Math.floor(item.value).toLocaleString()}</span>
                             </div>
                         ))}
                     </div>
@@ -116,7 +116,7 @@ export default function DividendCalendar({ data }: DividendCalendarProps) {
                 <div className="peak-month">
                     <span className="peak-label">配当集中月:</span>
                     <span className="peak-value">{maxMonth.month}</span>
-                    <span className="peak-amount">(¥{maxMonth.total.toLocaleString()})</span>
+                    <span className="peak-amount">(¥{Math.floor(maxMonth.total).toLocaleString()})</span>
                 </div>
             </div>
         </div>
