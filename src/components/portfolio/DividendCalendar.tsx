@@ -44,6 +44,13 @@ export default function DividendCalendar({ data }: DividendCalendarProps) {
     const annualTotal = data.reduce((sum, d) => sum + d.total, 0);
     const monthlyAverage = annualTotal / 12;
 
+    const formatCurrency = (val: number) => {
+        if (val >= 10000) {
+            return `¥${Math.floor(val / 10000).toLocaleString()}万`;
+        }
+        return `¥${Math.floor(val).toLocaleString()}`;
+    };
+
     if (!data || data.length === 0) {
         return (
             <div className="dividend-calendar card p-8 flex items-center justify-center text-muted">
@@ -58,42 +65,45 @@ export default function DividendCalendar({ data }: DividendCalendarProps) {
         <div className="dividend-calendar card">
             <div className="card-header">
                 <h3 className="card-title">
-                    <Calendar size={18} />
-                    配当カレンダー（12ヶ月予測）
+                    <Calendar className="icon" />
+                    配当カレンダー
                 </h3>
                 <div className="calendar-stats">
-                    <div className="calendar-stat">
-                        <span className="stat-value">¥{(annualTotal / 10000).toFixed(0)}万</span>
+                    <div className="stat-item">
                         <span className="stat-label">年間合計</span>
+                        <span className="stat-value">{formatCurrency(annualTotal)}</span>
                     </div>
-                    <div className="calendar-stat">
-                        <span className="stat-value">¥{(monthlyAverage / 10000).toFixed(0)}万</span>
+                    <div className="stat-item">
                         <span className="stat-label">月平均</span>
+                        <span className="stat-value">{formatCurrency(monthlyAverage)}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="calendar-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-primary)" vertical={false} />
+            <div className="chart-container">
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                        data={data}
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                        barGap={0}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-card-border)" vertical={false} />
                         <XAxis
                             dataKey="month"
-                            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                            axisLine={{ stroke: 'var(--border-primary)' }}
+                            stroke="var(--text-muted)"
+                            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                             tickLine={false}
+                            axisLine={false}
                         />
                         <YAxis
-                            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                            axisLine={false}
+                            stroke="var(--text-muted)"
+                            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                             tickLine={false}
-                            tickFormatter={(value) => `${(value / 10000).toFixed(0)}万`}
+                            axisLine={false}
+                            tickFormatter={(value) => `¥${(value / 10000).toFixed(0)}万`}
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-                        <Legend
-                            wrapperStyle={{ paddingTop: '10px' }}
-                            formatter={(value) => value === 'stocks' ? '株式配当' : 'ステーキング'}
-                        />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-hover)' }} />
+                        <Legend iconType="circle" />
                         <Bar
                             dataKey="stocks"
                             stackId="a"
