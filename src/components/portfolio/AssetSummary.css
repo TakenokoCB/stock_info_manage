@@ -182,3 +182,124 @@
 .group-change .change-percent {
     font-size: 0.75rem;
 }
+
+/* Expandable group header */
+.group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.group-header:hover {
+    opacity: 0.8;
+}
+
+.expand-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-card.expanded {
+    border-color: var(--border-accent);
+}
+
+/* Holdings List */
+.holdings-list {
+    margin-top: var(--spacing-md);
+    border-top: 1px solid var(--border-primary);
+    padding-top: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    max-height: 140px;
+    /* Approx 3 items */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-accent) var(--bg-secondary);
+}
+
+.holdings-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.holdings-list::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.holdings-list::-webkit-scrollbar-thumb {
+    background-color: var(--border-accent);
+    border-radius: 4px;
+}
+
+.holding-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.holding-row:hover {
+    background: var(--bg-card);
+}
+
+.holding-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.holding-symbol {
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.holding-name {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.holding-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.holding-amount {
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.holding-pl {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.holding-pl.positive {
+    color: var(--sentiment-positive);
+}
+
+.holding-pl.negative {
+    color: var(--sentiment-negative);
+}

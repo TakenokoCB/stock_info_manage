@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                         <span className="tooltip-value">
                             {entry.value >= 10000
                                 ? `¥${entry.value.toLocaleString()}`
-                                : entry.value.toFixed(2)}
+                                : entry.value.toFixed(0)}
                         </span>
                     </div>
                 ))}
@@ -98,7 +98,7 @@ export default function MultiChart() {
                                     axisLine={false}
                                     tickLine={false}
                                     tickFormatter={(value) => {
-                                        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+                                        if (value >= 1000000) return `${(value / 1000000).toFixed(0)}M`;
                                         if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
                                         return value.toString();
                                     }}
@@ -148,7 +148,7 @@ export default function MultiChart() {
                                     className={`legend-change ${change >= 0 ? 'positive' : 'negative'}`}
                                     style={{ color: change >= 0 ? 'var(--sentiment-positive)' : 'var(--sentiment-negative)' }}
                                 >
-                                    {change >= 0 ? '+' : ''}{change.toFixed(1)}%
+                                    {change >= 0 ? '+' : ''}{change.toFixed(0)}%
                                 </span>
                             </div>
                         );

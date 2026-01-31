@@ -1,6 +1,6 @@
 import { Calendar } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { DividendEntry } from '../../data/mockData';
+import { DividendEntry } from '../../../data/types';
 import './DividendCalendar.css';
 
 interface DividendCalendarProps {
@@ -9,27 +9,31 @@ interface DividendCalendarProps {
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-        const stockValue = payload.find((p: any) => p.dataKey === 'stocks')?.value || 0;
-        const stakingValue = payload.find((p: any) => p.dataKey === 'staking')?.value || 0;
-        const total = stockValue + stakingValue;
+        const data = payload[0].payload as DividendEntry;
+        const total = data.total;
 
         return (
             <div className="dividend-tooltip">
-                <p className="tooltip-label">{label}</p>
-                <div className="tooltip-row">
-                    <span className="tooltip-dot stocks"></span>
-                    <span>株式配当: </span>
-                    <span className="tooltip-value">¥{stockValue.toLocaleString()}</span>
+                <p className="tooltip-label">{label}の配当予測</p>
+                <div className="tooltip-total-section">
+                    <span className="tooltip-total-label">合計</span>
+                    <span className="tooltip-total-value">¥{total.toLocaleString()}</span>
                 </div>
-                <div className="tooltip-row">
-                    <span className="tooltip-dot staking"></span>
-                    <span>ステーキング: </span>
-                    <span className="tooltip-value">¥{stakingValue.toLocaleString()}</span>
-                </div>
-                <div className="tooltip-total">
-                    <span>合計: </span>
-                    <span className="tooltip-value">¥{total.toLocaleString()}</span>
-                </div>
+
+                {data.breakdown && (
+                    <div className="tooltip-breakdown">
+                        <p className="breakdown-header">主な内訳</p>
+                        {data.breakdown.map((item, idx) => (
+                            <div key={idx} className="breakdown-row">
+                                <div className="breakdown-name">
+                                    <span className={`dot ${item.type}`}></span>
+                                    {item.name}
+                                </div>
+                                <span className="breakdown-value">¥{item.value.toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         );
     }
@@ -39,6 +43,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function DividendCalendar({ data }: DividendCalendarProps) {
     const annualTotal = data.reduce((sum, d) => sum + d.total, 0);
     const monthlyAverage = annualTotal / 12;
+
+    if (!data || data.length === 0) {
+        return (
+            <div className="dividend-calendar card p-8 flex items-center justify-center text-muted">
+                Loading dividend data...
+            </div>
+        );
+    }
+
     const maxMonth = data.reduce((max, d) => d.total > max.total ? d : max, data[0]);
 
     return (
@@ -50,11 +63,11 @@ export default function DividendCalendar({ data }: DividendCalendarProps) {
                 </h3>
                 <div className="calendar-stats">
                     <div className="calendar-stat">
-                        <span className="stat-value">¥{(annualTotal / 10000).toFixed(1)}万</span>
+                        <span className="stat-value">¥{(annualTotal / 10000).toFixed(0)}万</span>
                         <span className="stat-label">年間合計</span>
                     </div>
                     <div className="calendar-stat">
-                        <span className="stat-value">¥{(monthlyAverage / 10000).toFixed(1)}万</span>
+                        <span className="stat-value">¥{(monthlyAverage / 10000).toFixed(0)}万</span>
                         <span className="stat-label">月平均</span>
                     </div>
                 </div>

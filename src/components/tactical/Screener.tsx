@@ -209,12 +209,12 @@ export default function Screener() {
                                 <td>
                                     <div className={`change-cell ${asset.change >= 0 ? 'positive' : 'negative'}`}>
                                         {asset.change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                                        {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
+                                        {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(0)}%
                                     </div>
                                 </td>
-                                <td className="metric-cell">{asset.per.toFixed(1)}</td>
-                                <td className="metric-cell">{asset.pbr.toFixed(1)}</td>
-                                <td className="metric-cell highlight">{asset.dividendYield.toFixed(1)}%</td>
+                                <td className="metric-cell">{asset.per.toFixed(0)}</td>
+                                <td className="metric-cell">{asset.pbr.toFixed(0)}</td>
+                                <td className="metric-cell highlight">{asset.dividendYield.toFixed(0)}%</td>
                                 <td>
                                     <div className="buzz-cell">
                                         <div

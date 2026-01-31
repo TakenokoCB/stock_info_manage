@@ -1,8 +1,45 @@
 // Mock Data - ポートフォリオデータと連携するモックデータ
 // 市場分析・戦術ダッシュボード用のデータ
 
-import { portfolioData } from '../../data/portfolioData';
-import type { Portfolio } from '../../data/types';
+import { storedPortfolioAssets } from '../../data/portfolioData';
+import { hydrateAsset } from '../services/marketData';
+import type { Portfolio, PortfolioAsset, DividendEntry } from '../../data/types';
+
+// Reconstruct Hydrated Portfolio from Stored Data (Synchronous Mock)
+const hydratedAssets: PortfolioAsset[] = storedPortfolioAssets.map(hydrateAsset);
+
+const calculateSummary = (assets: PortfolioAsset[]) => {
+    let totalMarketValue = 0;
+    let totalProfitLoss = 0;
+
+    assets.forEach(asset => {
+        if (asset.type === 'foreign_stock') {
+            totalMarketValue += asset.marketValueJpy;
+            totalProfitLoss += asset.profitLossJpy;
+        } else {
+            totalMarketValue += asset.marketValue;
+            totalProfitLoss += asset.profitLoss;
+        }
+    });
+
+    const totalProfitLossPercent = totalMarketValue - totalProfitLoss > 0
+        ? (totalProfitLoss / (totalMarketValue - totalProfitLoss)) * 100
+        : 0;
+
+    return {
+        totalMarketValue,
+        totalProfitLoss,
+        totalProfitLossPercent: Number(totalProfitLossPercent.toFixed(2)),
+    };
+};
+
+export const portfolioData: Portfolio = {
+    updatedAt: new Date().toISOString(),
+    assets: hydratedAssets,
+    summary: calculateSummary(hydratedAssets),
+};
+
+// ===== 型定義 =====
 
 // ===== 型定義 =====
 export interface Asset {
@@ -56,12 +93,7 @@ export interface PortfolioAssetLegacy {
     account: string;
 }
 
-export interface DividendEntry {
-    month: string;
-    stocks: number;
-    staking: number;
-    total: number;
-}
+// Duplicate DividendEntry definition removed
 
 export interface ScreenerAsset {
     id: string;
@@ -152,7 +184,7 @@ function convertToLegacyAssets(portfolio: Portfolio): PortfolioAssetLegacy[] {
                     currentPrice: asset.currentPrice,
                     totalValue: asset.marketValue,
                     profitLoss: asset.profitLoss,
-                    profitLossPercent: (asset.profitLoss / asset.acquisitionCost) * 100,
+                    profitLossPercent: asset.marketValue - asset.profitLoss !== 0 ? (asset.profitLoss / (asset.marketValue - asset.profitLoss)) * 100 : 0,
                     annualIncome: 0,
                 };
             case 'bond':
@@ -360,20 +392,157 @@ export const sentimentData: SentimentData[] = [
     { assetId: 'topix', symbol: 'TOPIX', twitterMentions: 4200, redditMentions: 1200, overallSentiment: 48, changeFromYesterday: 1, trending: false },
 ];
 
+// Dividend interfaces moved to types.ts
+
+export interface ScreenerAsset {
+    id: string;
+    symbol: string;
+    name: string;
+    sector: string;
+    price: number;
+    change: number; // change percent
+    per: number;
+    pbr: number;
+    dividendYield: number;
+    snsBuzz: number;
+    aiScore: number; // 0-100
+}
+
+
 // ===== 配当カレンダー =====
 export const dividendCalendar: DividendEntry[] = [
-    { month: '2月', stocks: 0, staking: 3500, total: 3500 },
-    { month: '3月', stocks: 45000, staking: 3600, total: 48600 },
-    { month: '4月', stocks: 0, staking: 3700, total: 3700 },
-    { month: '5月', stocks: 0, staking: 3800, total: 3800 },
-    { month: '6月', stocks: 18000, staking: 3900, total: 21900 },
-    { month: '7月', stocks: 0, staking: 4000, total: 4000 },
-    { month: '8月', stocks: 0, staking: 4100, total: 4100 },
-    { month: '9月', stocks: 42000, staking: 4200, total: 46200 },
-    { month: '10月', stocks: 0, staking: 4300, total: 4300 },
-    { month: '11月', stocks: 0, staking: 4400, total: 4400 },
-    { month: '12月', stocks: 30000, staking: 4500, total: 34500 },
-    { month: '1月', stocks: 0, staking: 4600, total: 4600 },
+    {
+        month: '2月',
+        stocks: 3000,
+        staking: 1200,
+        total: 4200,
+        breakdown: [
+            { name: 'Apple', value: 2000, type: 'stock' },
+            { name: 'Staking (ETH)', value: 1200, type: 'staking' },
+            { name: 'Coca-Cola', value: 1000, type: 'stock' },
+        ]
+    },
+    {
+        month: '3月',
+        stocks: 45000,
+        staking: 1500,
+        total: 46500,
+        breakdown: [
+            { name: 'eMAXIS Slim All', value: 25000, type: 'stock' }, // Reinvested but showing value? Or distributing? assuming distributing for calendar
+            // Actually user has "reinvest" in portfolio data, but this calendar implies income visualization.
+            { name: 'VYM', value: 15000, type: 'stock' },
+            { name: 'Staking (DOT)', value: 1500, type: 'staking' },
+            { name: 'Others', value: 5000, type: 'stock' },
+        ]
+    },
+    {
+        month: '4月',
+        stocks: 2000,
+        staking: 1300,
+        total: 3300,
+        breakdown: [
+            { name: 'Staking (ETH)', value: 1300, type: 'staking' },
+            { name: 'Procter & Gamble', value: 2000, type: 'stock' },
+        ]
+    },
+    {
+        month: '5月',
+        stocks: 8000,
+        staking: 1400,
+        total: 9400,
+        breakdown: [
+            { name: 'AT&T', value: 5000, type: 'stock' },
+            { name: 'Verizon', value: 3000, type: 'stock' },
+            { name: 'Staking (SOL)', value: 1400, type: 'staking' },
+        ]
+    },
+    {
+        month: '6月',
+        stocks: 25000,
+        staking: 1500,
+        total: 26500,
+        breakdown: [
+            { name: 'Japan Tobacco', value: 15000, type: 'stock' },
+            { name: 'KDDI', value: 8000, type: 'stock' },
+            { name: 'Staking (ETH)', value: 1500, type: 'staking' },
+            { name: 'Others', value: 2000, type: 'stock' },
+        ]
+    },
+    {
+        month: '7月',
+        stocks: 4000,
+        staking: 1300,
+        total: 5300,
+        breakdown: [
+            { name: 'Altria Group', value: 4000, type: 'stock' },
+            { name: 'Staking (DOT)', value: 1300, type: 'staking' },
+        ]
+    },
+    {
+        month: '8月',
+        stocks: 4000,
+        staking: 1200,
+        total: 5200,
+        breakdown: [
+            { name: 'Apple', value: 2000, type: 'stock' },
+            { name: 'Coca-Cola', value: 2000, type: 'stock' },
+            { name: 'Staking (ETH)', value: 1200, type: 'staking' },
+        ]
+    },
+    {
+        month: '9月',
+        stocks: 42000,
+        staking: 1500,
+        total: 43500,
+        breakdown: [
+            { name: 'eMAXIS Slim All', value: 25000, type: 'stock' },
+            { name: 'VYM', value: 12000, type: 'stock' },
+            { name: 'Staking (SOL)', value: 1500, type: 'staking' },
+            { name: 'Others', value: 5000, type: 'stock' },
+        ]
+    },
+    {
+        month: '10月',
+        stocks: 2500,
+        staking: 1400,
+        total: 3900,
+        breakdown: [
+            { name: 'Staking (ETH)', value: 1400, type: 'staking' },
+            { name: 'Procter & Gamble', value: 2500, type: 'stock' },
+        ]
+    },
+    {
+        month: '11月',
+        stocks: 4000,
+        staking: 1300,
+        total: 5300,
+        breakdown: [
+            { name: 'AT&T', value: 2500, type: 'stock' },
+            { name: 'Verizon', value: 1500, type: 'stock' },
+            { name: 'Staking (DOT)', value: 1300, type: 'staking' },
+        ]
+    },
+    {
+        month: '12月',
+        stocks: 23000,
+        staking: 1500,
+        total: 24500,
+        breakdown: [
+            { name: 'Japan Tobacco', value: 15000, type: 'stock' },
+            { name: 'KDDI', value: 8000, type: 'stock' },
+            { name: 'Staking (ETH)', value: 1500, type: 'staking' },
+        ]
+    },
+    {
+        month: '1月',
+        stocks: 3000,
+        staking: 1200,
+        total: 4200,
+        breakdown: [
+            { name: 'Altria Group', value: 3000, type: 'stock' },
+            { name: 'Staking (SOL)', value: 1200, type: 'staking' },
+        ]
+    },
 ];
 
 // ===== スクリーナーデータ =====

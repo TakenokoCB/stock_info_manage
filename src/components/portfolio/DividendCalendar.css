@@ -61,67 +61,87 @@
     color: var(--text-secondary);
 }
 
-/* Custom Tooltip Styles */
+/* Custom Tooltip Styling */
 .dividend-tooltip {
-    background: var(--bg-card);
-    border: 1px solid var(--border-secondary);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    padding: var(--spacing-sm);
+    /* Reduced padding */
+    border-radius: var(--radius-sm);
     box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    z-index: 100;
 }
 
 .tooltip-label {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tooltip-total-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tooltip-total-label {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+}
+
+.tooltip-total-value {
+    font-size: var(--font-md);
     font-weight: 600;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--border-primary);
 }
 
-.tooltip-row {
+.tooltip-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.breakdown-header {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-xs);
+}
+
+.breakdown-name {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.8rem;
+    gap: 6px;
     color: var(--text-secondary);
-    margin-bottom: 4px;
 }
 
-.tooltip-dot {
-    width: 8px;
-    height: 8px;
+.dot {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
 }
 
-.tooltip-dot.stocks {
-    background: var(--accent-secondary);
+.dot.stock {
+    background-color: var(--accent-secondary);
 }
 
-.tooltip-dot.staking {
-    background: var(--accent-primary);
+.dot.staking {
+    background-color: var(--accent-primary);
 }
 
-.tooltip-value {
+.breakdown-value {
+    color: var(--text-primary);
     font-family: var(--font-mono);
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-left: auto;
-}
-
-.tooltip-total {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-top: var(--spacing-sm);
-    padding-top: var(--spacing-sm);
-    border-top: 1px solid var(--border-primary);
-}
-
-.tooltip-total .tooltip-value {
-    color: var(--accent-primary);
 }
 
 /* Recharts Legend Styling */

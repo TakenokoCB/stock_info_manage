@@ -34,12 +34,12 @@ const getTypeLabel = (type: string) => {
 
 const formatPrice = (price: number, type: string): string => {
     if (type === 'crypto' && price > 100000) {
-        return `¥${(price / 10000).toFixed(1)}万`;
+        return `¥${(price / 10000).toFixed(0)}万`;
     }
     if (price >= 10000) {
-        return `¥${price.toLocaleString()}`;
+        return `¥${Math.floor(price).toLocaleString()}`;
     }
-    return `¥${price.toLocaleString()}`;
+    return `¥${Math.floor(price).toLocaleString()}`;
 };
 
 export default function WatchList({ assets }: WatchListProps) {
@@ -96,7 +96,7 @@ export default function WatchList({ assets }: WatchListProps) {
                                             <TrendingDown size={14} />
                                         )}
                                         <span className="mono">
-                                            {asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(2)}%
+                                            {asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(0)}%
                                         </span>
                                     </div>
                                 </td>

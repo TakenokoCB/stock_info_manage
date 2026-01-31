@@ -1,9 +1,9 @@
 import { Wallet, TrendingUp, TrendingDown, Building2, Bitcoin, Gem, FileText, PiggyBank } from 'lucide-react';
-import { PortfolioAssetLegacy, portfolioSummary } from '../../data/mockData';
+import { PortfolioAsset } from '../../../data/types';
 import './AssetSummary.css';
 
 interface AssetSummaryProps {
-    assets: PortfolioAssetLegacy[];
+    assets: PortfolioAsset[];
 }
 
 interface AssetGroup {
@@ -15,12 +15,76 @@ interface AssetGroup {
     profitLoss: number;
     profitLossPercent: number;
     count: number;
+    assets: PortfolioAsset[];
 }
 
 export default function AssetSummary({ assets }: AssetSummaryProps) {
+    // Helper to get symbol/code and name
+    const getAssetInfo = (asset: PortfolioAsset) => {
+        let symbol = '';
+        if ('code' in asset) symbol = asset.code;
+        else if ('ticker' in asset) symbol = asset.ticker;
+        else if ('symbol' in asset) symbol = asset.symbol;
+
+        // For Investment Trusts, usually no symbol, just name
+        if (asset.type === 'investment_trust' || asset.type === 'bond') {
+            symbol = '';
+        }
+
+        return { symbol, name: asset.name };
+    };
+
+    // Helper to get market value consistent across types
+    const getMarketValue = (asset: PortfolioAsset) => {
+        return asset.marketValue;
+    };
+
+    // Helper to get profit loss consistent
+    const getProfitLoss = (asset: PortfolioAsset) => {
+        if (asset.type === 'foreign_stock') {
+            return asset.profitLossJpy;
+        }
+        return asset.profitLoss;
+    };
+
+    // Helper to get profit loss percent consistent
+    const getProfitLossPercent = (asset: PortfolioAsset) => {
+        // Some assets might already have it, others need calc?
+        // Types say: DomesticStock, InvestmentTrust, Bond have profitLossPercent.
+        // ForeignStock, Crypto DO NOT have it explicitly in Enriched interface (except stored? no).
+        // Let's check types.ts
+        // ForeignStock has profitLossJpy/Usd. No percent.
+        // Crypto has profitLoss. No percent.
+
+        if ('profitLossPercent' in asset) {
+            return asset.profitLossPercent;
+        }
+
+        // Calculate
+        const marketVal = getMarketValue(asset);
+        const pl = getProfitLoss(asset);
+        const cost = marketVal - pl;
+        return cost > 0 ? (pl / cost) * 100 : 0;
+    };
+
     // Group assets by type
     const groupedAssets = assets.reduce<Record<string, AssetGroup>>((acc, asset) => {
-        const typeConfig: Record<string, { label: string; labelJa: string; icon: React.ElementType }> = {
+        // Map asset.type to group key if needed, or use asset.type directly
+        // asset.type values: 'domestic_stock', 'foreign_stock', 'investment_trust', 'crypto', 'bond'
+        // Config keys match these.
+        // Wait, original mockData had 'stock' which covered both?
+        // Previous AssetSummary grouped by 'stock', 'trust', 'crypto'.
+        // Now we have specific types. 
+        // Should we group domestic/foreign stocks together?
+        // User's previous grouping:
+        // stock: { label: 'Stocks', labelJa: '株式' ... }
+        // If I want to match previous UI, I should merge domestic/foreign into 'stock'.
+
+        let groupKey: string = asset.type;
+        if (groupKey === 'domestic_stock' || groupKey === 'foreign_stock') groupKey = 'stock';
+        if (groupKey === 'investment_trust') groupKey = 'trust';
+
+        const typeConfigMapped: Record<string, { label: string; labelJa: string; icon: React.ElementType }> = {
             stock: { label: 'Stocks', labelJa: '株式', icon: Building2 },
             trust: { label: 'Investment Trusts', labelJa: '投資信託', icon: PiggyBank },
             crypto: { label: 'Crypto', labelJa: '仮想通貨', icon: Bitcoin },
@@ -28,11 +92,11 @@ export default function AssetSummary({ assets }: AssetSummaryProps) {
             commodity: { label: 'Commodities', labelJa: 'コモディティ', icon: Gem },
         };
 
-        const config = typeConfig[asset.type] || typeConfig.stock;
+        const config = typeConfigMapped[groupKey] || typeConfigMapped.stock;
 
-        if (!acc[asset.type]) {
-            acc[asset.type] = {
-                type: asset.type,
+        if (!acc[groupKey]) {
+            acc[groupKey] = {
+                type: groupKey,
                 label: config.label,
                 labelJa: config.labelJa,
                 icon: config.icon,
@@ -40,12 +104,17 @@ export default function AssetSummary({ assets }: AssetSummaryProps) {
                 profitLoss: 0,
                 profitLossPercent: 0,
                 count: 0,
+                assets: [],
             };
         }
 
-        acc[asset.type].totalValue += asset.totalValue;
-        acc[asset.type].profitLoss += asset.profitLoss;
-        acc[asset.type].count += 1;
+        const mVal = getMarketValue(asset);
+        const pl = getProfitLoss(asset);
+
+        acc[groupKey].totalValue += mVal;
+        acc[groupKey].profitLoss += pl;
+        acc[groupKey].count += 1;
+        acc[groupKey].assets.push(asset);
 
         return acc;
     }, {});
@@ -58,22 +127,23 @@ export default function AssetSummary({ assets }: AssetSummaryProps) {
 
     const groups = Object.values(groupedAssets).sort((a, b) => b.totalValue - a.totalValue);
 
-    // Calculate totals
-    const totalValue = portfolioSummary?.totalMarketValue || assets.reduce((sum, a) => sum + a.totalValue, 0);
-    const totalProfitLoss = portfolioSummary?.totalProfitLoss || assets.reduce((sum, a) => sum + a.profitLoss, 0);
-    const totalProfitLossPercent = portfolioSummary?.totalProfitLossPercent ||
-        (totalValue - totalProfitLoss > 0 ? (totalProfitLoss / (totalValue - totalProfitLoss)) * 100 : 0);
+    // Calculate total summary from props
+    const totalValue = assets.reduce((sum, a) => sum + getMarketValue(a), 0);
+    const totalProfitLoss = assets.reduce((sum, a) => sum + getProfitLoss(a), 0);
+    const totalProfitLossPercent = totalValue > 0
+        ? (totalProfitLoss / (totalValue - totalProfitLoss)) * 100
+        : 0;
 
     const formatCurrency = (value: number): string => {
         if (Math.abs(value) >= 10000) {
-            return `¥${(value / 10000).toFixed(1)}万`;
+            return `¥${(value / 10000).toFixed(0)}万`;
         }
         return `¥${value.toLocaleString()}`;
     };
 
     const formatPercent = (value: number): string => {
         const sign = value >= 0 ? '+' : '';
-        return `${sign}${value.toFixed(2)}%`;
+        return `${sign}${value.toFixed(0)}%`;
     };
 
     return (
@@ -104,10 +174,11 @@ export default function AssetSummary({ assets }: AssetSummaryProps) {
                     </div>
                 </div>
 
-                {/* Asset Groups */}
+                {/* Asset Groups with Holdings */}
                 <div className="groups-section">
                     {groups.map(group => {
                         const Icon = group.icon;
+
                         return (
                             <div key={group.type} className="group-card">
                                 <div className="group-header">
@@ -123,6 +194,30 @@ export default function AssetSummary({ assets }: AssetSummaryProps) {
                                     <span className={`change-percent ${group.profitLoss >= 0 ? 'positive' : 'negative'}`}>
                                         ({formatPercent(group.profitLossPercent)})
                                     </span>
+                                </div>
+
+                                {/* Holdings List (Always Visible) */}
+                                <div className="holdings-list">
+                                    {group.assets.map((asset, idx) => {
+                                        const { symbol, name } = getAssetInfo(asset);
+                                        const mVal = getMarketValue(asset);
+                                        const plPercent = getProfitLossPercent(asset);
+
+                                        return (
+                                            <div key={idx} className="holding-row">
+                                                <div className="holding-info">
+                                                    {symbol && <span className="holding-symbol">{symbol}</span>}
+                                                    <span className="holding-name">{name}</span>
+                                                </div>
+                                                <div className="holding-value">
+                                                    <span className="holding-amount">{formatCurrency(mVal)}</span>
+                                                    <span className={`holding-pl ${plPercent >= 0 ? 'positive' : 'negative'}`}>
+                                                        {formatPercent(plPercent)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         );

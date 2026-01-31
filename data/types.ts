@@ -28,96 +28,121 @@ export type Broker =
     | 'sbi'               // SBI証券
     | 'rakuten'           // 楽天証券
     | 'bitpoint'          // ビットポイント
+    | 'au_kabucom'        // auカブコム証券
     | 'other';            // その他
 
 /**
- * 国内株式
+ * 国内株式 (Stored)
  */
-export interface DomesticStock {
+// ... (Domestic Stock)
+export interface StoredDomesticStock {
     type: 'domestic_stock';
     broker: Broker;
     account: AccountType;
-    code: string;           // 銘柄コード（例: "7203"）
-    name: string;           // 銘柄名
-    quantity: number;       // 保有株数
-    avgPrice: number;       // 平均取得単価（円）
-    currentPrice: number;   // 現在値（円）
-    acquisitionCost: number; // 取得金額（円）
-    marketValue: number;    // 評価額（円）
-    profitLoss: number;     // 評価損益（円）
-    profitLossPercent: number; // 評価損益（%）
+    code: string;
+    name: string;
+    quantity: number;
+    avgPrice: number;
+}
+
+export interface DomesticStock extends StoredDomesticStock {
+    currentPrice: number;
+    marketValue: number;
+    profitLoss: number;
+    profitLossPercent: number;
 }
 
 /**
- * 海外株式
+ * 海外株式 (Stored)
  */
-export interface ForeignStock {
+export interface StoredForeignStock {
     type: 'foreign_stock';
     broker: Broker;
     account: AccountType;
-    ticker: string;         // ティッカー（例: "AAPL"）
-    name: string;           // 銘柄名
-    quantity: number;       // 保有株数
-    avgPriceUsd: number;    // 平均取得単価（USD）
-    currentPriceUsd: number; // 現在値（USD）
-    marketValueUsd: number; // 外貨建評価額（USD）
-    marketValueJpy: number; // 円換算評価額（円）
-    profitLossUsd: number;  // 外貨建評価損益（USD）
-    profitLossJpy: number;  // 円換算評価損益（円）
+    ticker: string;
+    name: string;
+    quantity: number;
+    avgPriceUsd: number;
+}
+
+export interface ForeignStock extends StoredForeignStock {
+    currentPriceUsd: number;
+    marketValueUsd: number;
+    marketValueJpy: number;
+    marketValue: number; // For consistency (same as marketValueJpy)
+    profitLossUsd: number;
+    profitLossJpy: number;
 }
 
 /**
- * 投資信託
+ * 投資信託 (Stored)
  */
-export interface InvestmentTrust {
+export interface StoredInvestmentTrust {
     type: 'investment_trust';
     broker: Broker;
     account: AccountType;
-    name: string;           // ファンド名
-    units: number;          // 保有口数
-    avgNavPrice: number;    // 平均取得単価（円）
-    currentNavPrice: number; // 基準価額（円）
-    acquisitionCost: number; // 取得金額（円）
-    marketValue: number;    // 評価額（円）
-    profitLoss: number;     // 評価損益（円）
-    profitLossPercent: number; // 評価損益（%）
-    dividendMethod: 'reinvest' | 'receive'; // 分配金受取方法
+    name: string;
+    units: number;
+    avgNavPrice: number;
+    dividendMethod: 'reinvest' | 'receive';
+}
+
+export interface InvestmentTrust extends StoredInvestmentTrust {
+    currentNavPrice: number;
+    marketValue: number;
+    profitLoss: number;
+    profitLossPercent: number;
 }
 
 /**
- * 仮想通貨
+ * 仮想通貨 (Stored)
  */
-export interface Crypto {
+export interface StoredCrypto {
     type: 'crypto';
     broker: Broker;
-    symbol: string;         // シンボル（例: "BTC"）
-    name: string;           // 通貨名
-    quantity: number;       // 保有数量
-    avgPrice: number;       // 平均取得単価（円）
-    currentPrice: number;   // 現在値（円）
-    acquisitionCost: number; // 取得金額（円）
-    marketValue: number;    // 評価額（円）
-    profitLoss: number;     // 評価損益（円）
+    symbol: string;
+    name: string;
+    quantity: number;
+    avgPrice: number;
+}
+
+export interface Crypto extends StoredCrypto {
+    currentPrice: number;
+    marketValue: number;
+    profitLoss: number;
 }
 
 /**
- * 債券
+ * 債券 (Stored)
  */
-export interface Bond {
+export interface StoredBond {
     type: 'bond';
     broker: Broker;
     account: AccountType;
-    name: string;           // 銘柄名
-    faceValue: number;      // 額面
-    maturityDate: string;   // 満期日（YYYY/MM/DD）
-    acquisitionCost: number; // 取得金額（円）
-    marketValue: number;    // 評価額（円）
-    profitLoss: number;     // 評価損益（円）
-    profitLossPercent: number; // 評価損益（%）
+    name: string;
+    faceValue: number;
+    maturityDate: string;
+    acquisitionCost: number;
+}
+
+export interface Bond extends StoredBond {
+    marketValue: number;
+    profitLoss: number;
+    profitLossPercent: number;
 }
 
 /**
- * 全資産共通型
+ * 全資産共通型 (Stored)
+ */
+export type StoredPortfolioAsset =
+    | StoredDomesticStock
+    | StoredForeignStock
+    | StoredInvestmentTrust
+    | StoredCrypto
+    | StoredBond;
+
+/**
+ * 全資産共通型 (Enriched/Hydrated)
  */
 export type PortfolioAsset =
     | DomesticStock
@@ -129,12 +154,25 @@ export type PortfolioAsset =
 /**
  * ポートフォリオ全体
  */
+// Dividend Data Types
+export interface DividendEntry {
+    month: string;
+    stocks: number;
+    staking: number;
+    total: number;
+    breakdown?: {
+        name: string;
+        value: number;
+        type: 'stock' | 'staking';
+    }[];
+}
+
 export interface Portfolio {
-    updatedAt: string;      // 更新日時（ISO 8601）
+    updatedAt: string;
     assets: PortfolioAsset[];
     summary: {
-        totalMarketValue: number;     // 総評価額（円）
-        totalProfitLoss: number;      // 総評価損益（円）
-        totalProfitLossPercent: number; // 総評価損益（%）
+        totalMarketValue: number;
+        totalProfitLoss: number;
+        totalProfitLossPercent: number;
     };
 }
