@@ -1,12 +1,7 @@
 import {
-    LayoutDashboard,
-    LineChart,
     Briefcase,
-    TrendingUp,
     Newspaper,
-    PieChart,
     Activity,
-    BarChart3,
     Target
 } from 'lucide-react';
 import './Sidebar.css';

@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, TrendingUp, TrendingDown, ArrowUpDown, Sparkles, MessageCircle } from 'lucide-react';
-import { ScreenerAsset, screenerAssets } from '../../data/mockData';
+import { screenerAssets } from '../../data/mockData';
 import './Screener.css';
 
-type SortField = 'symbol' | 'price' | 'per' | 'pbr' | 'dividendYield' | 'snsBuzz' | 'aiScore' | 'change24h';
+type SortField = 'symbol' | 'price' | 'per' | 'pbr' | 'dividendYield' | 'snsBuzz' | 'aiScore' | 'change';
 type SortDirection = 'asc' | 'desc';
 
 interface Filters {
@@ -57,8 +57,8 @@ export default function Screener() {
 
         // Sort
         result.sort((a, b) => {
-            const aValue = a[sortField];
-            const bValue = b[sortField];
+            const aValue = sortField === 'change' ? a.change : a[sortField];
+            const bValue = sortField === 'change' ? b.change : b[sortField];
             const direction = sortDirection === 'asc' ? 1 : -1;
             if (typeof aValue === 'string') {
                 return aValue.localeCompare(bValue as string) * direction;
@@ -181,7 +181,7 @@ export default function Screener() {
                             <SortHeader field="symbol">銘柄</SortHeader>
                             <th>セクター</th>
                             <SortHeader field="price">株価</SortHeader>
-                            <SortHeader field="change24h">騰落率</SortHeader>
+                            <SortHeader field="change">騰落率</SortHeader>
                             <SortHeader field="per">PER</SortHeader>
                             <SortHeader field="pbr">PBR</SortHeader>
                             <SortHeader field="dividendYield">配当</SortHeader>
@@ -207,9 +207,9 @@ export default function Screener() {
                                 <td className="sector-cell">{asset.sector}</td>
                                 <td className="price-cell">¥{asset.price.toLocaleString()}</td>
                                 <td>
-                                    <div className={`change-cell ${asset.change24h >= 0 ? 'positive' : 'negative'}`}>
-                                        {asset.change24h >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                                        {asset.change24h >= 0 ? '+' : ''}{asset.change24h.toFixed(2)}%
+                                    <div className={`change-cell ${asset.change >= 0 ? 'positive' : 'negative'}`}>
+                                        {asset.change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                                        {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(2)}%
                                     </div>
                                 </td>
                                 <td className="metric-cell">{asset.per.toFixed(1)}</td>

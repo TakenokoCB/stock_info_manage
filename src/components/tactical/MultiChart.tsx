@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, Layers } from 'lucide-react';
-import { nikkeiChartData, goldChartData, btcChartData } from '../../data/mockData';
+import { chartData, ChartDataPoint } from '../../data/mockData';
 import './MultiChart.css';
 
 interface ChartAsset {
     id: string;
     label: string;
-    data: { date: string; value: number }[];
+    dataKey: keyof ChartDataPoint;
     color: string;
 }
 
 const availableAssets: ChartAsset[] = [
-    { id: 'nikkei', label: '日経平均', data: nikkeiChartData, color: 'var(--accent-secondary)' },
-    { id: 'gold', label: '金 (XAU)', data: goldChartData, color: 'var(--accent-warning)' },
-    { id: 'btc', label: 'ビットコイン', data: btcChartData, color: 'var(--accent-tertiary)' },
+    { id: 'nikkei', label: '日経平均', dataKey: 'nikkei', color: 'var(--accent-secondary)' },
+    { id: 'gold', label: '金 (XAU)', dataKey: 'gold', color: 'var(--accent-warning)' },
+    { id: 'btc', label: 'ビットコイン', dataKey: 'bitcoin', color: 'var(--accent-tertiary)' },
 ];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -50,18 +50,6 @@ export default function MultiChart() {
         );
     };
 
-    // Merge data for selected assets
-    const mergedData = nikkeiChartData.map((point, index) => {
-        const merged: any = { date: point.date };
-        selectedAssets.forEach(assetId => {
-            const asset = availableAssets.find(a => a.id === assetId);
-            if (asset) {
-                merged[assetId] = asset.data[index]?.value || 0;
-            }
-        });
-        return merged;
-    });
-
     return (
         <div className="multi-chart card">
             <div className="card-header">
@@ -86,7 +74,7 @@ export default function MultiChart() {
 
             <div className="chart-container">
                 <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={mergedData} margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
+                    <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-primary)" />
                         <XAxis
                             dataKey="date"
@@ -120,7 +108,7 @@ export default function MultiChart() {
                         <Tooltip content={<CustomTooltip />} />
                         <Legend
                             wrapperStyle={{ paddingTop: '15px' }}
-                            formatter={(value) => availableAssets.find(a => a.id === value)?.label || value}
+                            formatter={(value) => availableAssets.find(a => a.dataKey === value)?.label || value}
                         />
                         {selectedAssets.map((assetId, index) => {
                             const asset = availableAssets.find(a => a.id === assetId);
@@ -130,8 +118,8 @@ export default function MultiChart() {
                                     key={assetId}
                                     yAxisId={index}
                                     type="monotone"
-                                    dataKey={assetId}
-                                    name={assetId}
+                                    dataKey={asset.dataKey}
+                                    name={asset.dataKey}
                                     stroke={asset.color}
                                     strokeWidth={2}
                                     dot={false}
@@ -149,8 +137,8 @@ export default function MultiChart() {
                     {selectedAssets.map(assetId => {
                         const asset = availableAssets.find(a => a.id === assetId);
                         if (!asset) return null;
-                        const firstValue = asset.data[0]?.value || 0;
-                        const lastValue = asset.data[asset.data.length - 1]?.value || 0;
+                        const firstValue = chartData[0]?.[asset.dataKey] as number || 0;
+                        const lastValue = chartData[chartData.length - 1]?.[asset.dataKey] as number || 0;
                         const change = ((lastValue - firstValue) / firstValue) * 100;
                         return (
                             <div key={assetId} className="legend-item">
