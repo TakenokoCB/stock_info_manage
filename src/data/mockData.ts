@@ -611,6 +611,71 @@ export const screenerAssets: ScreenerAsset[] = [
     { id: '8316', symbol: '8316', name: '三井住友FG', sector: '銀行', per: 9.2, pbr: 0.8, dividendYield: 4.0, snsBuzz: 48, aiScore: 54, price: 2950, change: 0.5 },
 ];
 
+// ===== グローバルスクリーナーデータ (50銘柄) =====
+// 米国・欧州・アジアの主要銘柄ランキング
+export const globalScreenerAssets: ScreenerAsset[] = [
+    // Top Tier (AI Score 85+) - US Tech Giants
+    { id: 'NVDA', symbol: 'NVDA', name: 'NVIDIA', sector: 'Semiconductors', per: 65.2, pbr: 28.5, dividendYield: 0.03, snsBuzz: 98, aiScore: 95, price: 875, change: 3.5 },
+    { id: 'MSFT', symbol: 'MSFT', name: 'Microsoft', sector: 'Software', per: 35.8, pbr: 12.5, dividendYield: 0.7, snsBuzz: 92, aiScore: 93, price: 415, change: 1.8 },
+    { id: 'AAPL', symbol: 'AAPL', name: 'Apple', sector: 'Consumer Electronics', per: 28.5, pbr: 45.2, dividendYield: 0.5, snsBuzz: 95, aiScore: 91, price: 225, change: 1.2 },
+    { id: 'GOOGL', symbol: 'GOOGL', name: 'Alphabet', sector: 'Internet Services', per: 22.8, pbr: 6.2, dividendYield: 0.0, snsBuzz: 88, aiScore: 90, price: 175, change: 2.1 },
+    { id: 'META', symbol: 'META', name: 'Meta Platforms', sector: 'Social Media', per: 28.5, pbr: 8.2, dividendYield: 0.4, snsBuzz: 90, aiScore: 89, price: 485, change: 2.5 },
+    { id: 'AMZN', symbol: 'AMZN', name: 'Amazon', sector: 'E-Commerce', per: 42.5, pbr: 8.8, dividendYield: 0.0, snsBuzz: 85, aiScore: 88, price: 185, change: 1.5 },
+    { id: 'AVGO', symbol: 'AVGO', name: 'Broadcom', sector: 'Semiconductors', per: 32.5, pbr: 12.2, dividendYield: 1.8, snsBuzz: 78, aiScore: 87, price: 1250, change: 2.8 },
+
+    // High Tier (AI Score 75-84) - Tech & Healthcare
+    { id: 'TSLA', symbol: 'TSLA', name: 'Tesla', sector: 'Electric Vehicles', per: 58.2, pbr: 12.5, dividendYield: 0.0, snsBuzz: 98, aiScore: 84, price: 385, change: 4.2 },
+    { id: 'AMD', symbol: 'AMD', name: 'AMD', sector: 'Semiconductors', per: 45.8, pbr: 4.5, dividendYield: 0.0, snsBuzz: 88, aiScore: 83, price: 165, change: 2.8 },
+    { id: 'LLY', symbol: 'LLY', name: 'Eli Lilly', sector: 'Pharmaceuticals', per: 85.2, pbr: 52.5, dividendYield: 0.7, snsBuzz: 82, aiScore: 82, price: 785, change: 1.5 },
+    { id: 'ASML', symbol: 'ASML', name: 'ASML Holding', sector: 'Semiconductors', per: 42.5, pbr: 22.8, dividendYield: 0.8, snsBuzz: 75, aiScore: 81, price: 985, change: 1.2 },
+    { id: 'TSM', symbol: 'TSM', name: 'TSMC', sector: 'Semiconductors', per: 22.5, pbr: 6.8, dividendYield: 1.5, snsBuzz: 80, aiScore: 80, price: 165, change: 2.2 },
+    { id: 'V', symbol: 'V', name: 'Visa', sector: 'Financial Services', per: 28.5, pbr: 15.2, dividendYield: 0.8, snsBuzz: 55, aiScore: 79, price: 285, change: 0.5 },
+    { id: 'MA', symbol: 'MA', name: 'Mastercard', sector: 'Financial Services', per: 32.8, pbr: 55.2, dividendYield: 0.6, snsBuzz: 52, aiScore: 78, price: 465, change: 0.8 },
+    { id: 'UNH', symbol: 'UNH', name: 'UnitedHealth', sector: 'Healthcare', per: 22.5, pbr: 6.5, dividendYield: 1.5, snsBuzz: 48, aiScore: 77, price: 525, change: 0.2 },
+    { id: 'CRM', symbol: 'CRM', name: 'Salesforce', sector: 'Software', per: 45.2, pbr: 4.2, dividendYield: 0.0, snsBuzz: 72, aiScore: 76, price: 285, change: 1.8 },
+    { id: 'ORCL', symbol: 'ORCL', name: 'Oracle', sector: 'Software', per: 32.5, pbr: 38.5, dividendYield: 1.2, snsBuzz: 65, aiScore: 75, price: 165, change: 1.5 },
+
+    // Mid-High Tier (AI Score 70-74) - Industrial & Consumer
+    { id: 'NFLX', symbol: 'NFLX', name: 'Netflix', sector: 'Entertainment', per: 42.8, pbr: 15.5, dividendYield: 0.0, snsBuzz: 85, aiScore: 74, price: 625, change: 2.2 },
+    { id: 'COST', symbol: 'COST', name: 'Costco', sector: 'Retail', per: 52.5, pbr: 15.8, dividendYield: 0.5, snsBuzz: 58, aiScore: 73, price: 885, change: 0.5 },
+    { id: 'NVO', symbol: 'NVO', name: 'Novo Nordisk', sector: 'Pharmaceuticals', per: 38.5, pbr: 28.5, dividendYield: 1.2, snsBuzz: 78, aiScore: 72, price: 125, change: 1.8 },
+    { id: 'ADBE', symbol: 'ADBE', name: 'Adobe', sector: 'Software', per: 45.2, pbr: 15.2, dividendYield: 0.0, snsBuzz: 62, aiScore: 72, price: 585, change: 0.8 },
+    { id: 'SAP', symbol: 'SAP', name: 'SAP SE', sector: 'Software', per: 35.8, pbr: 5.2, dividendYield: 1.5, snsBuzz: 48, aiScore: 71, price: 215, change: 0.5 },
+    { id: 'LVMH', symbol: 'MC.PA', name: 'LVMH', sector: 'Luxury Goods', per: 22.5, pbr: 5.8, dividendYield: 1.8, snsBuzz: 68, aiScore: 71, price: 785, change: -0.5 },
+    { id: 'DIS', symbol: 'DIS', name: 'Walt Disney', sector: 'Entertainment', per: 65.2, pbr: 2.1, dividendYield: 0.0, snsBuzz: 75, aiScore: 70, price: 112, change: 1.2 },
+    { id: 'PEP', symbol: 'PEP', name: 'PepsiCo', sector: 'Beverages', per: 25.8, pbr: 12.5, dividendYield: 2.8, snsBuzz: 42, aiScore: 70, price: 175, change: 0.2 },
+
+    // Mid Tier (AI Score 65-69) - Diversified
+    { id: 'ACN', symbol: 'ACN', name: 'Accenture', sector: 'IT Services', per: 28.5, pbr: 8.2, dividendYield: 1.5, snsBuzz: 45, aiScore: 69, price: 345, change: 0.5 },
+    { id: 'BABA', symbol: 'BABA', name: 'Alibaba', sector: 'E-Commerce', per: 12.5, pbr: 1.5, dividendYield: 0.0, snsBuzz: 72, aiScore: 68, price: 85, change: 2.5 },
+    { id: 'KO', symbol: 'KO', name: 'Coca-Cola', sector: 'Beverages', per: 22.5, pbr: 10.5, dividendYield: 3.2, snsBuzz: 45, aiScore: 68, price: 62, change: 0.2 },
+    { id: 'NKE', symbol: 'NKE', name: 'Nike', sector: 'Apparel', per: 28.5, pbr: 8.5, dividendYield: 1.8, snsBuzz: 68, aiScore: 67, price: 98, change: -0.8 },
+    { id: 'MCD', symbol: 'MCD', name: 'McDonald\'s', sector: 'Restaurants', per: 25.2, pbr: 0.0, dividendYield: 2.2, snsBuzz: 52, aiScore: 67, price: 285, change: 0.5 },
+    { id: 'JPM', symbol: 'JPM', name: 'JPMorgan Chase', sector: 'Banking', per: 11.5, pbr: 1.8, dividendYield: 2.5, snsBuzz: 58, aiScore: 66, price: 195, change: 0.8 },
+    { id: 'HSBC', symbol: 'HSBC', name: 'HSBC Holdings', sector: 'Banking', per: 8.5, pbr: 0.9, dividendYield: 5.2, snsBuzz: 42, aiScore: 66, price: 42, change: 0.5 },
+    { id: 'TM', symbol: 'TM', name: 'Toyota (ADR)', sector: 'Automobiles', per: 10.2, pbr: 1.1, dividendYield: 2.5, snsBuzz: 55, aiScore: 65, price: 185, change: 0.8 },
+    { id: 'SNY', symbol: 'SNY', name: 'Sanofi', sector: 'Pharmaceuticals', per: 12.5, pbr: 1.5, dividendYield: 4.2, snsBuzz: 35, aiScore: 65, price: 48, change: 0.2 },
+
+    // Mid-Low Tier (AI Score 60-64)
+    { id: 'INTC', symbol: 'INTC', name: 'Intel', sector: 'Semiconductors', per: 0.0, pbr: 1.2, dividendYield: 1.5, snsBuzz: 72, aiScore: 64, price: 32, change: -1.5 },
+    { id: 'BAC', symbol: 'BAC', name: 'Bank of America', sector: 'Banking', per: 10.8, pbr: 1.1, dividendYield: 2.8, snsBuzz: 48, aiScore: 64, price: 38, change: 0.5 },
+    { id: 'WMT', symbol: 'WMT', name: 'Walmart', sector: 'Retail', per: 28.5, pbr: 6.8, dividendYield: 1.2, snsBuzz: 52, aiScore: 63, price: 165, change: 0.2 },
+    { id: 'PFE', symbol: 'PFE', name: 'Pfizer', sector: 'Pharmaceuticals', per: 45.2, pbr: 1.5, dividendYield: 5.8, snsBuzz: 55, aiScore: 63, price: 28, change: -0.5 },
+    { id: 'XOM', symbol: 'XOM', name: 'Exxon Mobil', sector: 'Energy', per: 12.5, pbr: 2.1, dividendYield: 3.5, snsBuzz: 48, aiScore: 62, price: 115, change: 0.8 },
+    { id: 'CVX', symbol: 'CVX', name: 'Chevron', sector: 'Energy', per: 11.8, pbr: 1.8, dividendYield: 4.2, snsBuzz: 42, aiScore: 62, price: 155, change: 0.5 },
+    { id: 'SHEL', symbol: 'SHEL', name: 'Shell', sector: 'Energy', per: 8.5, pbr: 1.2, dividendYield: 4.0, snsBuzz: 38, aiScore: 61, price: 68, change: 0.2 },
+    { id: 'BHP', symbol: 'BHP', name: 'BHP Group', sector: 'Mining', per: 12.5, pbr: 2.8, dividendYield: 5.5, snsBuzz: 35, aiScore: 61, price: 58, change: 0.8 },
+    { id: 'RIO', symbol: 'RIO', name: 'Rio Tinto', sector: 'Mining', per: 10.2, pbr: 2.2, dividendYield: 6.2, snsBuzz: 32, aiScore: 60, price: 65, change: 0.5 },
+
+    // Lower Tier (AI Score 55-59)
+    { id: 'VZ', symbol: 'VZ', name: 'Verizon', sector: 'Telecom', per: 8.5, pbr: 1.5, dividendYield: 6.8, snsBuzz: 32, aiScore: 59, price: 42, change: -0.2 },
+    { id: 'T', symbol: 'T', name: 'AT&T', sector: 'Telecom', per: 9.2, pbr: 1.2, dividendYield: 6.5, snsBuzz: 35, aiScore: 58, price: 18, change: 0.2 },
+    { id: 'IBM', symbol: 'IBM', name: 'IBM', sector: 'IT Services', per: 18.5, pbr: 6.8, dividendYield: 4.2, snsBuzz: 42, aiScore: 58, price: 185, change: 0.5 },
+    { id: 'BA', symbol: 'BA', name: 'Boeing', sector: 'Aerospace', per: 0.0, pbr: 0.0, dividendYield: 0.0, snsBuzz: 68, aiScore: 57, price: 185, change: -1.2 },
+    { id: 'GE', symbol: 'GE', name: 'GE Aerospace', sector: 'Aerospace', per: 35.2, pbr: 8.5, dividendYield: 0.5, snsBuzz: 52, aiScore: 56, price: 165, change: 0.8 },
+    { id: 'F', symbol: 'F', name: 'Ford Motor', sector: 'Automobiles', per: 6.5, pbr: 1.0, dividendYield: 4.8, snsBuzz: 48, aiScore: 55, price: 12, change: -0.5 },
+];
+
 // ===== 相関マトリックス =====
 export const correlationData: CorrelationData = {
     assets: ['N225', 'TOPIX', 'BTC', 'XAU', 'USD/JPY'],

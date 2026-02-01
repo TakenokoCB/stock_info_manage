@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, SlidersHorizontal, TrendingUp, TrendingDown, ArrowUpDown, Sparkles, MessageCircle, Bot, Trophy, RefreshCw } from 'lucide-react';
-import { screenerAssets } from '../../data/mockData';
+import { Search, SlidersHorizontal, TrendingUp, TrendingDown, ArrowUpDown, Sparkles, MessageCircle, Bot, Trophy, RefreshCw, Globe, Flag } from 'lucide-react';
+import { screenerAssets, globalScreenerAssets } from '../../data/mockData';
 import './Screener.css';
 
 // Type definition for Chrome Built-in AI
@@ -12,6 +12,7 @@ declare global {
 
 type SortField = 'rank' | 'symbol' | 'price' | 'snsBuzz' | 'aiScore' | 'change';
 type SortDirection = 'asc' | 'desc';
+type MarketTab = 'japan' | 'global';
 
 interface Filters {
     minSnsBuzz: number;
@@ -19,9 +20,11 @@ interface Filters {
 }
 
 const SCREENER_STORAGE_KEY = 'screener_last_update';
-const SCREENER_ANALYSIS_KEY = 'screener_analysis_cache';
+const SCREENER_ANALYSIS_KEY_JP = 'screener_analysis_cache_jp';
+const SCREENER_ANALYSIS_KEY_GLOBAL = 'screener_analysis_cache_global';
 
 export default function Screener() {
+    const [activeTab, setActiveTab] = useState<MarketTab>('japan');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortField, setSortField] = useState<SortField>('aiScore');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -30,35 +33,41 @@ export default function Screener() {
         minSnsBuzz: 0,
         minAiScore: 0,
     });
-    const [aiReasoning, setAiReasoning] = useState<Record<string, string>>({});
+    const [aiReasoningJP, setAiReasoningJP] = useState<Record<string, string>>({});
+    const [aiReasoningGlobal, setAiReasoningGlobal] = useState<Record<string, string>>({});
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [aiStatus, setAiStatus] = useState<'ready' | 'unavailable' | 'loading'>('loading');
     const [lastUpdate, setLastUpdate] = useState<string>('');
 
-    // Enhanced fallback analysis generator with more variety
-    const generateFallbackAnalysis = (asset: typeof screenerAssets[0], rank: number): string => {
+    // Get current assets based on tab
+    const currentAssets = activeTab === 'japan' ? screenerAssets : globalScreenerAssets;
+    const currentReasoning = activeTab === 'japan' ? aiReasoningJP : aiReasoningGlobal;
+    const currentCacheKey = activeTab === 'japan' ? SCREENER_ANALYSIS_KEY_JP : SCREENER_ANALYSIS_KEY_GLOBAL;
+
+    // Enhanced fallback analysis generator
+    const generateFallbackAnalysis = (asset: typeof screenerAssets[0], rank: number, isGlobal: boolean): string => {
         const positives: string[] = [];
         const negatives: string[] = [];
         const sector = asset.sector;
 
         // AI Score analysis
-        if (asset.aiScore >= 85) positives.push('AI最高評価');
-        else if (asset.aiScore >= 75) positives.push('AI高評価');
-        else if (asset.aiScore >= 65) positives.push('AI中評価');
-        else if (asset.aiScore < 60) negatives.push('AI評価低め');
+        if (asset.aiScore >= 85) positives.push(isGlobal ? 'AI Top Pick' : 'AI最高評価');
+        else if (asset.aiScore >= 75) positives.push(isGlobal ? 'AI High Score' : 'AI高評価');
+        else if (asset.aiScore >= 65) positives.push(isGlobal ? 'AI Moderate' : 'AI中評価');
+        else if (asset.aiScore < 60) negatives.push(isGlobal ? 'AI Low Score' : 'AI評価低め');
 
         // SNS Buzz analysis
-        if (asset.snsBuzz >= 80) positives.push('SNS急上昇中');
-        else if (asset.snsBuzz >= 60) positives.push('SNS注目');
-        else if (asset.snsBuzz < 40) negatives.push('SNS関心薄');
+        if (asset.snsBuzz >= 80) positives.push(isGlobal ? 'Trending on SNS' : 'SNS急上昇中');
+        else if (asset.snsBuzz >= 60) positives.push(isGlobal ? 'SNS Interest' : 'SNS注目');
+        else if (asset.snsBuzz < 40) negatives.push(isGlobal ? 'Low SNS Activity' : 'SNS関心薄');
 
         // Price change analysis
-        if (asset.change >= 3) positives.push('強い上昇モメンタム');
-        else if (asset.change >= 1.5) positives.push('上昇基調');
-        else if (asset.change <= -1.5) negatives.push('調整局面');
+        if (asset.change >= 3) positives.push(isGlobal ? 'Strong Momentum' : '強い上昇モメンタム');
+        else if (asset.change >= 1.5) positives.push(isGlobal ? 'Uptrend' : '上昇基調');
+        else if (asset.change <= -1.5) negatives.push(isGlobal ? 'Pullback' : '調整局面');
 
         // Sector-specific comments
-        const sectorComments: Record<string, string> = {
+        const sectorCommentsJP: Record<string, string> = {
             '電気機器': 'AI・半導体需要が追い風',
             'エレクトロニクス': 'デジタル化推進で成長期待',
             '自動車': 'EV転換とグローバル展開に注目',
@@ -71,17 +80,51 @@ export default function Screener() {
             '小売': '消費動向とインバウンド効果',
         };
 
+        const sectorCommentsEN: Record<string, string> = {
+            'Semiconductors': 'AI chip demand driving growth',
+            'Software': 'Cloud & AI subscription tailwinds',
+            'Consumer Electronics': 'Product cycle momentum',
+            'Internet Services': 'Digital ad recovery',
+            'Social Media': 'Engagement metrics improving',
+            'E-Commerce': 'Margin expansion focus',
+            'Electric Vehicles': 'EV adoption accelerating',
+            'Pharmaceuticals': 'GLP-1 and pipeline catalysts',
+            'Financial Services': 'Transaction volume growth',
+            'Healthcare': 'Defensive with steady cash flow',
+            'Entertainment': 'Streaming and parks recovery',
+            'Retail': 'Consumer resilience',
+            'Banking': 'NIM expansion in rate environment',
+            'Energy': 'Oil price and dividend yield',
+            'Mining': 'Commodity cycle play',
+            'Telecom': 'High yield defensive',
+            'Aerospace': 'Backlog execution key',
+            'IT Services': 'Digital transformation demand',
+            'Beverages': 'Stable consumer staple',
+            'Apparel': 'Brand strength matters',
+            'Restaurants': 'Traffic and pricing power',
+            'Automobiles': 'EV transition progress',
+            'Luxury Goods': 'China recovery exposure',
+        };
+
+        const sectorComments = isGlobal ? sectorCommentsEN : sectorCommentsJP;
+
         // Build the analysis
         let analysis = '';
 
         if (rank <= 10) {
-            analysis = `【TOP10】${positives.slice(0, 2).join('・')}。`;
+            analysis = isGlobal
+                ? `【TOP10】${positives.slice(0, 2).join(', ')}. `
+                : `【TOP10】${positives.slice(0, 2).join('・')}。`;
         } else if (rank <= 20) {
-            analysis = `${positives.length > 0 ? positives[0] : '安定推移'}。`;
+            analysis = positives.length > 0 ? (isGlobal ? `${positives[0]}. ` : `${positives[0]}。`) : (isGlobal ? 'Stable. ' : '安定推移。');
         } else if (rank <= 35) {
-            analysis = `${positives.length > negatives.length ? positives[0] : 'バリュー銘柄として注目'}。`;
+            analysis = positives.length > negatives.length
+                ? (isGlobal ? `${positives[0]}. ` : `${positives[0]}。`)
+                : (isGlobal ? 'Value play. ' : 'バリュー銘柄として注目。');
         } else {
-            analysis = `${negatives.length > 0 ? negatives[0] : '様子見推奨'}。`;
+            analysis = negatives.length > 0
+                ? (isGlobal ? `${negatives[0]}. ` : `${negatives[0]}。`)
+                : (isGlobal ? 'Hold. ' : '様子見推奨。');
         }
 
         // Add sector comment if available
@@ -100,17 +143,17 @@ export default function Screener() {
     };
 
     // Save analysis to cache
-    const saveAnalysisCache = (analysis: Record<string, string>) => {
+    const saveAnalysisCache = (analysis: Record<string, string>, cacheKey: string) => {
         const today = new Date().toISOString().split('T')[0];
         localStorage.setItem(SCREENER_STORAGE_KEY, today);
-        localStorage.setItem(SCREENER_ANALYSIS_KEY, JSON.stringify(analysis));
+        localStorage.setItem(cacheKey, JSON.stringify(analysis));
         setLastUpdate(today);
     };
 
     // Load analysis from cache
-    const loadAnalysisCache = (): Record<string, string> | null => {
+    const loadAnalysisCache = (cacheKey: string): Record<string, string> | null => {
         try {
-            const cached = localStorage.getItem(SCREENER_ANALYSIS_KEY);
+            const cached = localStorage.getItem(cacheKey);
             if (cached) {
                 return JSON.parse(cached);
             }
@@ -123,23 +166,30 @@ export default function Screener() {
     // Force refresh analysis
     const forceRefresh = () => {
         localStorage.removeItem(SCREENER_STORAGE_KEY);
-        localStorage.removeItem(SCREENER_ANALYSIS_KEY);
-        setAiReasoning({});
-        runAnalysis();
+        localStorage.removeItem(SCREENER_ANALYSIS_KEY_JP);
+        localStorage.removeItem(SCREENER_ANALYSIS_KEY_GLOBAL);
+        setAiReasoningJP({});
+        setAiReasoningGlobal({});
+        runAnalysis('japan');
+        runAnalysis('global');
     };
 
     // Main analysis function
-    const runAnalysis = async () => {
-        // Sort assets by AI score for ranking
-        const rankedAssets = [...screenerAssets]
-            .sort((a, b) => b.aiScore - a.aiScore);
+    const runAnalysis = async (market: MarketTab) => {
+        const assets = market === 'japan' ? screenerAssets : globalScreenerAssets;
+        const cacheKey = market === 'japan' ? SCREENER_ANALYSIS_KEY_JP : SCREENER_ANALYSIS_KEY_GLOBAL;
+        const setReasoning = market === 'japan' ? setAiReasoningJP : setAiReasoningGlobal;
+        const isGlobal = market === 'global';
 
-        // Check cache first (if not forced)
+        // Sort assets by AI score for ranking
+        const rankedAssets = [...assets].sort((a, b) => b.aiScore - a.aiScore);
+
+        // Check cache first
         if (!needsDailyUpdate()) {
-            const cached = loadAnalysisCache();
+            const cached = loadAnalysisCache(cacheKey);
             if (cached && Object.keys(cached).length >= 50) {
-                console.log('Using cached analysis from today');
-                setAiReasoning(cached);
+                console.log(`Using cached ${market} analysis from today`);
+                setReasoning(cached);
                 setAiStatus('ready');
                 setLastUpdate(localStorage.getItem(SCREENER_STORAGE_KEY) || '');
                 return;
@@ -150,54 +200,22 @@ export default function Screener() {
         setAiStatus('loading');
         const newReasoning: Record<string, string> = {};
 
-        // Check if Gemini Nano is available
-        const useGeminiNano = window.ai && window.ai.languageModel;
-
-        if (useGeminiNano) {
-            try {
-                const capabilities = await window.ai.languageModel.capabilities();
-                if (capabilities.available !== 'no') {
-                    const session = await window.ai.languageModel.create();
-                    setAiStatus('ready');
-
-                    // Use Gemini Nano for top 10 only (to save API calls)
-                    const top10 = rankedAssets.slice(0, 10);
-                    for (const asset of top10) {
-                        const rank = rankedAssets.findIndex(a => a.id === asset.id) + 1;
-                        const prompt = `日本語で20文字以内で分析。銘柄: ${asset.name}, セクター: ${asset.sector}, AIスコア: ${asset.aiScore}/100, SNS注目度: ${asset.snsBuzz}/100, 株価変動: ${asset.change}%。上昇期待理由:`;
-                        const result = await session.prompt(prompt);
-                        newReasoning[asset.id] = result.trim();
-                    }
-
-                    // Fallback for remaining 40
-                    rankedAssets.slice(10).forEach((asset, idx) => {
-                        newReasoning[asset.id] = generateFallbackAnalysis(asset, idx + 11);
-                    });
-
-                    setAiReasoning(newReasoning);
-                    saveAnalysisCache(newReasoning);
-                    setIsAiLoading(false);
-                    return;
-                }
-            } catch (error) {
-                console.error('Gemini Nano failed, falling back:', error);
-            }
-        }
-
-        // Fallback: Generate all 50 with rule-based analysis
-        console.log('Using fallback analysis for all 50 stocks');
-        setAiStatus('unavailable');
+        // Generate fallback analysis for all stocks
+        console.log(`Generating ${market} analysis for ${rankedAssets.length} stocks`);
         rankedAssets.forEach((asset, idx) => {
-            newReasoning[asset.id] = generateFallbackAnalysis(asset, idx + 1);
+            newReasoning[asset.id] = generateFallbackAnalysis(asset, idx + 1, isGlobal);
         });
-        setAiReasoning(newReasoning);
-        saveAnalysisCache(newReasoning);
+
+        setReasoning(newReasoning);
+        saveAnalysisCache(newReasoning, cacheKey);
         setIsAiLoading(false);
+        setAiStatus('ready');
     };
 
     // Initial load effect
     useEffect(() => {
-        runAnalysis();
+        runAnalysis('japan');
+        runAnalysis('global');
     }, []);
 
     const handleSort = (field: SortField) => {
@@ -212,7 +230,7 @@ export default function Screener() {
     // Filtered, sorted, and ranked assets
     const filteredAndSortedAssets = useMemo(() => {
         // First, create ranked list by AI Score
-        const ranked = [...screenerAssets]
+        const ranked = [...currentAssets]
             .sort((a, b) => b.aiScore - a.aiScore)
             .map((asset, index) => ({ ...asset, rank: index + 1 }));
 
@@ -231,7 +249,7 @@ export default function Screener() {
             return true;
         });
 
-        // Apply user sort (but keep rank attached)
+        // Apply user sort
         if (sortField !== 'rank') {
             const direction = sortDirection === 'asc' ? 1 : -1;
             result.sort((a, b) => {
@@ -240,13 +258,12 @@ export default function Screener() {
                 return ((aValue as number) - (bValue as number)) * direction;
             });
         } else {
-            // Sort by rank
             const direction = sortDirection === 'asc' ? 1 : -1;
             result.sort((a, b) => (a.rank - b.rank) * direction);
         }
 
         return result;
-    }, [searchQuery, sortField, sortDirection, filters]);
+    }, [searchQuery, sortField, sortDirection, filters, currentAssets]);
 
     const SortHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
         <th
@@ -260,6 +277,13 @@ export default function Screener() {
         </th>
     );
 
+    const formatPrice = (price: number, isGlobal: boolean) => {
+        if (isGlobal) {
+            return `$${price.toLocaleString()}`;
+        }
+        return `¥${price.toLocaleString()}`;
+    };
+
     return (
         <div className="screener card">
             <div className="card-header">
@@ -268,6 +292,22 @@ export default function Screener() {
                         <Sparkles size={18} />
                         AI高度スクリーナー (50銘柄ランキング)
                     </h3>
+                    <div className="screener-tabs">
+                        <button
+                            className={`tab-btn ${activeTab === 'japan' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('japan')}
+                        >
+                            <Flag size={14} />
+                            日本銘柄
+                        </button>
+                        <button
+                            className={`tab-btn ${activeTab === 'global' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('global')}
+                        >
+                            <Globe size={14} />
+                            世界銘柄
+                        </button>
+                    </div>
                     <div className="screener-subtitle">
                         <span className="update-info">
                             <RefreshCw size={12} />
@@ -283,7 +323,7 @@ export default function Screener() {
                         <Search size={16} />
                         <input
                             type="text"
-                            placeholder="銘柄検索..."
+                            placeholder={activeTab === 'japan' ? '銘柄検索...' : 'Search stocks...'}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -300,7 +340,7 @@ export default function Screener() {
             {showFilters && (
                 <div className="filters-panel">
                     <div className="filter-group">
-                        <label>SNSバズ (Min)</label>
+                        <label>SNS Min</label>
                         <input
                             type="number"
                             value={filters.minSnsBuzz}
@@ -309,7 +349,7 @@ export default function Screener() {
                         />
                     </div>
                     <div className="filter-group">
-                        <label>AIスコア (Min)</label>
+                        <label>AI Score Min</label>
                         <input
                             type="number"
                             value={filters.minAiScore}
@@ -326,11 +366,11 @@ export default function Screener() {
                         <tr>
                             <SortHeader field="rank">
                                 <Trophy size={12} />
-                                順位
+                                {activeTab === 'japan' ? '順位' : 'Rank'}
                             </SortHeader>
-                            <SortHeader field="symbol">銘柄</SortHeader>
-                            <SortHeader field="price">株価</SortHeader>
-                            <SortHeader field="change">騰落率</SortHeader>
+                            <SortHeader field="symbol">{activeTab === 'japan' ? '銘柄' : 'Stock'}</SortHeader>
+                            <SortHeader field="price">{activeTab === 'japan' ? '株価' : 'Price'}</SortHeader>
+                            <SortHeader field="change">{activeTab === 'japan' ? '騰落率' : 'Change'}</SortHeader>
                             <SortHeader field="snsBuzz">
                                 <MessageCircle size={12} />
                                 SNS
@@ -341,7 +381,7 @@ export default function Screener() {
                             </SortHeader>
                             <th className="ai-reasoning-header">
                                 <Bot size={12} />
-                                AI上昇期待理由
+                                {activeTab === 'japan' ? 'AI上昇期待理由' : 'AI Analysis'}
                             </th>
                         </tr>
                     </thead>
@@ -360,7 +400,7 @@ export default function Screener() {
                                         <span className="asset-name">{asset.name}</span>
                                     </div>
                                 </td>
-                                <td className="price-cell">¥{asset.price.toLocaleString()}</td>
+                                <td className="price-cell">{formatPrice(asset.price, activeTab === 'global')}</td>
                                 <td>
                                     <div className={`change-cell ${asset.change >= 0 ? 'positive' : 'negative'}`}>
                                         {asset.change >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
@@ -382,11 +422,11 @@ export default function Screener() {
                                     </div>
                                 </td>
                                 <td className="ai-reason-cell">
-                                    {aiReasoning[asset.id] ? (
-                                        <span className="ai-text">{aiReasoning[asset.id]}</span>
+                                    {currentReasoning[asset.id] ? (
+                                        <span className="ai-text">{currentReasoning[asset.id]}</span>
                                     ) : (
                                         <span className="text-muted text-xs">
-                                            {isAiLoading ? '分析中...' : '-'}
+                                            {isAiLoading ? (activeTab === 'japan' ? '分析中...' : 'Analyzing...') : '-'}
                                         </span>
                                     )}
                                 </td>
@@ -397,11 +437,13 @@ export default function Screener() {
             </div>
 
             <div className="screener-footer">
-                <span className="result-count">{filteredAndSortedAssets.length}銘柄表示</span>
+                <span className="result-count">
+                    {filteredAndSortedAssets.length}{activeTab === 'japan' ? '銘柄表示' : ' stocks shown'}
+                </span>
                 <span className="ai-status">
-                    {aiStatus === 'ready' && <span className="status-badge ready">AI分析完了</span>}
-                    {aiStatus === 'loading' && <span className="status-badge loading">分析中...</span>}
-                    {aiStatus === 'unavailable' && <span className="status-badge fallback">ルールベース分析</span>}
+                    {aiStatus === 'ready' && <span className="status-badge ready">{activeTab === 'japan' ? 'AI分析完了' : 'Analysis Complete'}</span>}
+                    {aiStatus === 'loading' && <span className="status-badge loading">{activeTab === 'japan' ? '分析中...' : 'Analyzing...'}</span>}
+                    {aiStatus === 'unavailable' && <span className="status-badge fallback">{activeTab === 'japan' ? 'ルールベース分析' : 'Rule-based'}</span>}
                 </span>
             </div>
         </div>
