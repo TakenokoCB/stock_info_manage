@@ -43,20 +43,14 @@ const getHydratedAssets = () => {
             symbol = '---';
         }
 
-        const changePrice = price * randomFactor;
         const changePercent = randomFactor * 100;
-        const high24h = price * (1 + Math.abs(randomFactor / 2));
-        const low24h = price * (1 - Math.abs(randomFactor / 2));
 
         return {
             ...asset,
-            displayName: name,
+            displayName: name.length > 12 ? name.substring(0, 10) + '...' : name,
             displaySymbol: symbol,
             displayPrice: price,
-            change24h: changePrice,
             changePercent24h: changePercent,
-            high24h,
-            low24h
         };
     });
 };
@@ -66,12 +60,12 @@ const getTypeIcon = (type: string) => {
         case 'domestic_stock':
         case 'foreign_stock':
         case 'investment_trust':
-            return <BarChart size={14} className="type-icon stock" />;
+            return <BarChart size={12} className="type-icon stock" />;
         case 'crypto':
-            return <Coins size={14} className="type-icon crypto" />;
+            return <Coins size={12} className="type-icon crypto" />;
         case 'commodity':
         case 'bond':
-            return <Gem size={14} className="type-icon commodity" />;
+            return <Gem size={12} className="type-icon commodity" />;
         default:
             return null;
     }
@@ -99,6 +93,9 @@ const formatPrice = (price: number, type: string): string => {
     }
 
     // Standard formatting
+    if (isUsd) {
+        return `${prefix}${price.toFixed(0)}`;
+    }
     return `${prefix}${Math.floor(price).toLocaleString()}`;
 };
 
@@ -114,64 +111,28 @@ export default function WatchList() {
                 </h3>
                 <span className="live-indicator">LIVE</span>
             </div>
-            <div className="watchlist-table-container">
-                <table className="watchlist-table">
-                    <thead>
-                        <tr>
-                            <th>銘柄</th>
-                            <th>タイプ</th>
-                            <th className="text-right">現在値</th>
-                            <th className="text-right">前日比</th>
-                            <th className="text-right">変動率</th>
-                            <th className="text-right">高値</th>
-                            <th className="text-right">安値</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {assets.map((asset, idx) => (
-                            <tr key={idx} className="watchlist-row">
-                                <td>
-                                    <div className="asset-info">
-                                        <span className="asset-symbol">{asset.displaySymbol}</span>
-                                        <span className="asset-name">{asset.displayName}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="asset-type">
-                                        {getTypeIcon(asset.type)}
-                                        <span>{getTypeLabel(asset.type)}</span>
-                                    </div>
-                                </td>
-                                <td className="text-right">
-                                    <span className="price mono">{formatPrice(asset.displayPrice, asset.type)}</span>
-                                </td>
-                                <td className="text-right">
-                                    <span className={`change mono ${asset.change24h >= 0 ? 'positive' : 'negative'}`}>
-                                        {asset.change24h >= 0 ? '+' : ''}{formatPrice(asset.change24h, asset.type)}
-                                    </span>
-                                </td>
-                                <td className="text-right">
-                                    <div className={`change-percent ${asset.changePercent24h >= 0 ? 'positive' : 'negative'}`}>
-                                        {asset.changePercent24h >= 0 ? (
-                                            <TrendingUp size={14} />
-                                        ) : (
-                                            <TrendingDown size={14} />
-                                        )}
-                                        <span className="mono">
-                                            {asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(0)}%
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="text-right">
-                                    <span className="mono text-muted">{formatPrice(asset.high24h, asset.type)}</span>
-                                </td>
-                                <td className="text-right">
-                                    <span className="mono text-muted">{formatPrice(asset.low24h, asset.type)}</span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="watchlist-panel-grid">
+                {assets.map((asset, idx) => (
+                    <div key={idx} className={`watchlist-panel ${asset.changePercent24h >= 0 ? 'positive' : 'negative'}`}>
+                        <div className="panel-header">
+                            <div className="panel-type">
+                                {getTypeIcon(asset.type)}
+                                <span>{getTypeLabel(asset.type)}</span>
+                            </div>
+                            <div className={`panel-change ${asset.changePercent24h >= 0 ? 'positive' : 'negative'}`}>
+                                {asset.changePercent24h >= 0 ? (
+                                    <TrendingUp size={12} />
+                                ) : (
+                                    <TrendingDown size={12} />
+                                )}
+                                <span>{asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                        <div className="panel-symbol">{asset.displaySymbol}</div>
+                        <div className="panel-name">{asset.displayName}</div>
+                        <div className="panel-price">{formatPrice(asset.displayPrice, asset.type)}</div>
+                    </div>
+                ))}
             </div>
         </div>
     );

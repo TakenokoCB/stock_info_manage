@@ -1,70 +1,52 @@
 .watchlist {
-    height: 100%;
+    height: auto;
 }
 
-.watchlist-table-container {
-    overflow-x: auto;
+/* Panel Grid Layout */
+.watchlist-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
 }
 
-.watchlist-table {
-    width: 100%;
-    border-collapse: collapse;
+/* Individual Panel */
+.watchlist-panel {
+    background: var(--bg-input);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-primary);
+    transition: all var(--transition-fast);
+    cursor: pointer;
 }
 
-.watchlist-table th {
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-primary);
-    white-space: nowrap;
+.watchlist-panel:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
 }
 
-.watchlist-table td {
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-primary);
-    vertical-align: middle;
+.watchlist-panel.positive {
+    border-left: 3px solid var(--accent-success);
 }
 
-.watchlist-row {
-    transition: background var(--transition-fast);
+.watchlist-panel.negative {
+    border-left: 3px solid var(--accent-danger);
 }
 
-.watchlist-row:hover {
-    background: var(--bg-card-hover);
-}
-
-.text-right {
-    text-align: right;
-}
-
-.asset-info {
+/* Panel Header */
+.panel-header {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
 }
 
-.asset-symbol {
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: var(--font-mono);
-    color: var(--text-primary);
-}
-
-.asset-name {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-.asset-type {
+.panel-type {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    gap: 4px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
 }
 
 .type-icon.stock {
@@ -79,49 +61,70 @@
     color: var(--accent-tertiary);
 }
 
-.price {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.change {
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.change.positive {
-    color: var(--sentiment-positive);
-}
-
-.change.negative {
-    color: var(--sentiment-negative);
-}
-
-.change-percent {
-    display: inline-flex;
+/* Panel Change */
+.panel-change {
+    display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    padding: 2px var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.change-percent.positive {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--sentiment-positive);
-}
-
-.change-percent.negative {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--sentiment-negative);
-}
-
-.mono {
+    gap: 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
     font-family: var(--font-mono);
 }
 
-.text-muted {
+.panel-change.positive {
+    color: var(--accent-success);
+}
+
+.panel-change.negative {
+    color: var(--accent-danger);
+}
+
+/* Panel Symbol */
+.panel-symbol {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+/* Panel Name */
+.panel-name {
+    font-size: 0.65rem;
     color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Panel Price */
+.panel-price {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+/* Live Indicator */
+.live-indicator {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--accent-success);
+    background: rgba(34, 197, 94, 0.1);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
 }

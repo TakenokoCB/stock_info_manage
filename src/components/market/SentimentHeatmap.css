@@ -3,12 +3,10 @@
     height: auto;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .sentiment-ranking-list {
     flex: 1;
-    overflow: hidden;
 }
 
 /* Ranking Header */
