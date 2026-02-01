@@ -42,7 +42,7 @@ const navItems = [
 export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
     const [marketInfo, setMarketInfo] = useState<MarketInfo[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const { logout } = useAuth();
+    const { logout, isLoginEnabled } = useAuth();
 
     useEffect(() => {
         // Initial fetch
@@ -103,10 +103,12 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                <button className="logout-button" onClick={handleLogout}>
-                    <LogOut size={16} />
-                    ログアウト
-                </button>
+                {isLoginEnabled && (
+                    <button className="logout-button" onClick={handleLogout}>
+                        <LogOut size={16} />
+                        ログアウト
+                    </button>
+                )}
                 <div className="market-status">
                     <span className={`status-indicator ${isMarketOpen ? 'live' : 'closed'}`}></span>
                     <span className="status-text">
