@@ -545,16 +545,70 @@ export const dividendCalendar: DividendEntry[] = [
     },
 ];
 
-// ===== スクリーナーデータ =====
+// ===== スクリーナーデータ (50銘柄) =====
+// 日経225構成銘柄を中心とした上昇期待銘柄ランキング
 export const screenerAssets: ScreenerAsset[] = [
-    { id: '7203', symbol: '7203', name: 'トヨタ自動車', sector: '自動車', per: 10.2, pbr: 1.1, dividendYield: 2.8, snsBuzz: 85, aiScore: 78, price: 2850, change: 1.2 },
-    { id: '6758', symbol: '6758', name: 'ソニーグループ', sector: 'エレクトロニクス', per: 15.8, pbr: 2.3, dividendYield: 0.6, snsBuzz: 92, aiScore: 85, price: 15420, change: -0.8 },
-    { id: '9984', symbol: '9984', name: 'ソフトバンクG', sector: '情報・通信', per: 8.5, pbr: 0.9, dividendYield: 0.8, snsBuzz: 78, aiScore: 65, price: 8750, change: 2.1 },
-    { id: '8306', symbol: '8306', name: '三菱UFJ FG', sector: '銀行', per: 9.8, pbr: 0.7, dividendYield: 3.8, snsBuzz: 45, aiScore: 72, price: 1285, change: 0.5 },
-    { id: '6861', symbol: '6861', name: 'キーエンス', sector: '電気機器', per: 35.2, pbr: 5.8, dividendYield: 0.3, snsBuzz: 68, aiScore: 88, price: 62500, change: -1.5 },
-    { id: '4661', symbol: '4661', name: 'オリエンタルランド', sector: 'サービス', per: 45.0, pbr: 6.2, dividendYield: 0.2, snsBuzz: 82, aiScore: 70, price: 2709, change: -1.3 },
+    // Top Tier (AI Score 85+)
+    { id: '6861', symbol: '6861', name: 'キーエンス', sector: '電気機器', per: 35.2, pbr: 5.8, dividendYield: 0.3, snsBuzz: 88, aiScore: 92, price: 62500, change: 2.1 },
+    { id: '6758', symbol: '6758', name: 'ソニーグループ', sector: 'エレクトロニクス', per: 15.8, pbr: 2.3, dividendYield: 0.6, snsBuzz: 92, aiScore: 90, price: 15420, change: 1.8 },
+    { id: '9983', symbol: '9983', name: 'ファーストリテイリング', sector: '小売', per: 38.5, pbr: 7.2, dividendYield: 0.8, snsBuzz: 85, aiScore: 88, price: 42500, change: 1.5 },
+    { id: '6954', symbol: '6954', name: 'ファナック', sector: '電気機器', per: 28.3, pbr: 3.1, dividendYield: 1.2, snsBuzz: 72, aiScore: 87, price: 4250, change: 2.3 },
+    { id: '8035', symbol: '8035', name: '東京エレクトロン', sector: '電気機器', per: 22.1, pbr: 4.8, dividendYield: 1.5, snsBuzz: 90, aiScore: 89, price: 28500, change: 3.2 },
+    { id: '4063', symbol: '4063', name: '信越化学工業', sector: '化学', per: 12.5, pbr: 2.1, dividendYield: 2.2, snsBuzz: 68, aiScore: 86, price: 5850, change: 1.2 },
+    { id: '6902', symbol: '6902', name: 'デンソー', sector: '自動車部品', per: 14.2, pbr: 1.3, dividendYield: 2.5, snsBuzz: 65, aiScore: 85, price: 2180, change: 0.8 },
+
+    // High Tier (AI Score 75-84)
+    { id: '7203', symbol: '7203', name: 'トヨタ自動車', sector: '自動車', per: 10.2, pbr: 1.1, dividendYield: 2.8, snsBuzz: 85, aiScore: 84, price: 2850, change: 1.2 },
+    { id: '6501', symbol: '6501', name: '日立製作所', sector: '電気機器', per: 16.8, pbr: 2.0, dividendYield: 1.8, snsBuzz: 75, aiScore: 83, price: 9850, change: 1.5 },
+    { id: '7741', symbol: '7741', name: 'HOYA', sector: '精密機器', per: 32.5, pbr: 6.5, dividendYield: 0.9, snsBuzz: 62, aiScore: 82, price: 18500, change: 0.5 },
+    { id: '6367', symbol: '6367', name: 'ダイキン工業', sector: '機械', per: 25.8, pbr: 4.2, dividendYield: 0.8, snsBuzz: 58, aiScore: 81, price: 28000, change: 0.3 },
+    { id: '9984', symbol: '9984', name: 'ソフトバンクG', sector: '情報・通信', per: 8.5, pbr: 0.9, dividendYield: 0.8, snsBuzz: 88, aiScore: 80, price: 8750, change: 2.1 },
+    { id: '6098', symbol: '6098', name: 'リクルートHD', sector: 'サービス', per: 28.5, pbr: 5.8, dividendYield: 0.5, snsBuzz: 78, aiScore: 79, price: 6850, change: 1.8 },
+    { id: '4519', symbol: '4519', name: '中外製薬', sector: '医薬品', per: 22.3, pbr: 4.5, dividendYield: 1.2, snsBuzz: 55, aiScore: 78, price: 5200, change: 0.2 },
+    { id: '9432', symbol: '9432', name: 'NTT', sector: '情報・通信', per: 11.2, pbr: 1.4, dividendYield: 3.2, snsBuzz: 55, aiScore: 77, price: 154, change: 1.0 },
+    { id: '6273', symbol: '6273', name: 'SMC', sector: '機械', per: 18.5, pbr: 2.8, dividendYield: 1.5, snsBuzz: 48, aiScore: 76, price: 72500, change: 0.8 },
+    { id: '4568', symbol: '4568', name: '第一三共', sector: '医薬品', per: 45.2, pbr: 5.2, dividendYield: 0.8, snsBuzz: 72, aiScore: 75, price: 4850, change: 1.2 },
+
+    // Mid-High Tier (AI Score 70-74)
+    { id: '8306', symbol: '8306', name: '三菱UFJ FG', sector: '銀行', per: 9.8, pbr: 0.7, dividendYield: 3.8, snsBuzz: 65, aiScore: 74, price: 1285, change: 0.5 },
+    { id: '7267', symbol: '7267', name: 'ホンダ', sector: '自動車', per: 8.5, pbr: 0.6, dividendYield: 3.5, snsBuzz: 70, aiScore: 73, price: 1580, change: 0.8 },
+    { id: '4502', symbol: '4502', name: '武田薬品工業', sector: '医薬品', per: 18.5, pbr: 1.2, dividendYield: 4.2, snsBuzz: 52, aiScore: 72, price: 4150, change: -0.2 },
+    { id: '4661', symbol: '4661', name: 'オリエンタルランド', sector: 'サービス', per: 45.0, pbr: 6.2, dividendYield: 0.2, snsBuzz: 82, aiScore: 72, price: 2709, change: -1.3 },
+    { id: '6503', symbol: '6503', name: '三菱電機', sector: '電気機器', per: 15.2, pbr: 1.5, dividendYield: 2.2, snsBuzz: 45, aiScore: 71, price: 2250, change: 0.5 },
+    { id: '8766', symbol: '8766', name: '東京海上HD', sector: '保険', per: 12.5, pbr: 1.8, dividendYield: 3.0, snsBuzz: 42, aiScore: 71, price: 4850, change: 0.3 },
+    { id: '9433', symbol: '9433', name: 'KDDI', sector: '情報・通信', per: 13.8, pbr: 1.9, dividendYield: 3.0, snsBuzz: 48, aiScore: 70, price: 4580, change: 0.2 },
+    { id: '6981', symbol: '6981', name: '村田製作所', sector: '電気機器', per: 18.2, pbr: 2.2, dividendYield: 1.8, snsBuzz: 62, aiScore: 70, price: 2850, change: 1.5 },
+
+    // Mid Tier (AI Score 65-69)
+    { id: '7751', symbol: '7751', name: 'キヤノン', sector: '電気機器', per: 12.8, pbr: 1.2, dividendYield: 3.2, snsBuzz: 38, aiScore: 69, price: 4250, change: 0.5 },
+    { id: '8058', symbol: '8058', name: '三菱商事', sector: '商社', per: 8.2, pbr: 1.0, dividendYield: 3.5, snsBuzz: 58, aiScore: 68, price: 2650, change: 0.8 },
+    { id: '8031', symbol: '8031', name: '三井物産', sector: '商社', per: 7.8, pbr: 1.1, dividendYield: 3.2, snsBuzz: 55, aiScore: 68, price: 6850, change: 1.0 },
+    { id: '3382', symbol: '3382', name: 'セブン&アイHD', sector: '小売', per: 18.5, pbr: 1.5, dividendYield: 2.5, snsBuzz: 52, aiScore: 67, price: 2150, change: -0.5 },
+    { id: '6971', symbol: '6971', name: '京セラ', sector: '電気機器', per: 15.5, pbr: 0.9, dividendYield: 2.8, snsBuzz: 35, aiScore: 67, price: 1850, change: 0.2 },
+    { id: '7974', symbol: '7974', name: '任天堂', sector: 'その他製品', per: 15.2, pbr: 3.5, dividendYield: 2.2, snsBuzz: 88, aiScore: 66, price: 8250, change: -0.8 },
+    { id: '2801', symbol: '2801', name: 'キッコーマン', sector: '食料品', per: 35.2, pbr: 4.8, dividendYield: 0.8, snsBuzz: 42, aiScore: 66, price: 1950, change: 0.3 },
+    { id: '4901', symbol: '4901', name: '富士フイルムHD', sector: '化学', per: 14.8, pbr: 1.2, dividendYield: 1.8, snsBuzz: 45, aiScore: 65, price: 3250, change: 0.5 },
+    { id: '6702', symbol: '6702', name: '富士通', sector: '電気機器', per: 18.5, pbr: 2.5, dividendYield: 1.2, snsBuzz: 58, aiScore: 65, price: 2450, change: 1.2 },
+
+    // Mid-Low Tier (AI Score 60-64)
+    { id: '8801', symbol: '8801', name: '三井不動産', sector: '不動産', per: 12.5, pbr: 1.2, dividendYield: 2.0, snsBuzz: 38, aiScore: 64, price: 1350, change: 0.2 },
+    { id: '9020', symbol: '9020', name: 'JR東日本', sector: '陸運', per: 15.8, pbr: 1.3, dividendYield: 1.5, snsBuzz: 42, aiScore: 64, price: 2850, change: -0.3 },
+    { id: '4503', symbol: '4503', name: 'アステラス製薬', sector: '医薬品', per: 22.5, pbr: 2.2, dividendYield: 2.8, snsBuzz: 35, aiScore: 63, price: 1650, change: -0.5 },
+    { id: '6752', symbol: '6752', name: 'パナソニックHD', sector: '電気機器', per: 10.5, pbr: 0.8, dividendYield: 2.5, snsBuzz: 52, aiScore: 63, price: 1450, change: 0.8 },
     { id: '2730', symbol: '2730', name: 'エディオン', sector: '小売', per: 12.5, pbr: 0.8, dividendYield: 3.5, snsBuzz: 35, aiScore: 62, price: 2117, change: 0.8 },
-    { id: '9432', symbol: '9432', name: 'NTT', sector: '情報・通信', per: 11.2, pbr: 1.4, dividendYield: 3.2, snsBuzz: 55, aiScore: 75, price: 154, change: 1.0 },
+    { id: '9022', symbol: '9022', name: 'JR東海', sector: '陸運', per: 10.2, pbr: 1.0, dividendYield: 0.8, snsBuzz: 38, aiScore: 62, price: 3450, change: 0.2 },
+    { id: '5401', symbol: '5401', name: '日本製鉄', sector: '鉄鋼', per: 6.5, pbr: 0.6, dividendYield: 5.2, snsBuzz: 45, aiScore: 61, price: 3250, change: 1.5 },
+    { id: '6301', symbol: '6301', name: 'コマツ', sector: '機械', per: 11.2, pbr: 1.5, dividendYield: 3.2, snsBuzz: 42, aiScore: 61, price: 4150, change: 0.5 },
+    { id: '8802', symbol: '8802', name: '三菱地所', sector: '不動産', per: 15.8, pbr: 1.5, dividendYield: 1.8, snsBuzz: 35, aiScore: 60, price: 2150, change: -0.2 },
+
+    // Lower Tier (AI Score 55-59)
+    { id: '9021', symbol: '9021', name: 'JR西日本', sector: '陸運', per: 12.8, pbr: 1.1, dividendYield: 2.2, snsBuzz: 32, aiScore: 59, price: 2850, change: -0.5 },
+    { id: '5108', symbol: '5108', name: 'ブリヂストン', sector: 'ゴム', per: 10.5, pbr: 1.2, dividendYield: 3.5, snsBuzz: 28, aiScore: 58, price: 5650, change: 0.2 },
+    { id: '7011', symbol: '7011', name: '三菱重工業', sector: '機械', per: 18.5, pbr: 1.8, dividendYield: 1.5, snsBuzz: 55, aiScore: 58, price: 1250, change: 2.5 },
+    { id: '2502', symbol: '2502', name: 'アサヒグループHD', sector: '食料品', per: 15.2, pbr: 1.5, dividendYield: 2.2, snsBuzz: 38, aiScore: 57, price: 5850, change: -0.3 },
+    { id: '2914', symbol: '2914', name: 'JT', sector: '食料品', per: 12.8, pbr: 1.8, dividendYield: 4.8, snsBuzz: 42, aiScore: 56, price: 4250, change: 0.2 },
+    { id: '4452', symbol: '4452', name: '花王', sector: '化学', per: 28.5, pbr: 3.2, dividendYield: 2.5, snsBuzz: 35, aiScore: 55, price: 5450, change: -0.8 },
+    { id: '8316', symbol: '8316', name: '三井住友FG', sector: '銀行', per: 9.2, pbr: 0.8, dividendYield: 4.0, snsBuzz: 48, aiScore: 54, price: 2950, change: 0.5 },
 ];
 
 // ===== 相関マトリックス =====
