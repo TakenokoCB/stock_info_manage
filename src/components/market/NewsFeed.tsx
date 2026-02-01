@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Minus, Sparkles, Briefcase } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { TrendingUp, TrendingDown, Minus, Sparkles, Briefcase, RefreshCw, Clock } from 'lucide-react';
 import { NewsItem, newsItems } from '../../data/mockData';
 import { samplePortfolio } from '../../../data/sampleData';
 import './NewsFeed.css';
@@ -8,6 +8,8 @@ interface NewsFeedProps {
     news?: NewsItem[];
     portfolioLinked?: boolean;
 }
+
+const NEWS_STORAGE_KEY = 'newsfeed_last_update';
 
 const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
@@ -40,8 +42,59 @@ const getPortfolioSymbols = (): string[] => {
     }).filter(Boolean);
 };
 
+// Format timestamp for display
+const formatUpdateTime = (isoString: string): string => {
+    try {
+        const date = new Date(isoString);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${month}/${day} ${hours}:${minutes}`;
+    } catch {
+        return '';
+    }
+};
+
 export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps) {
+    const [lastUpdate, setLastUpdate] = useState<string>('');
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const portfolioSymbols = useMemo(() => getPortfolioSymbols(), []);
+
+    // Check and update on mount
+    useEffect(() => {
+        const checkDailyUpdate = () => {
+            const today = new Date().toISOString().split('T')[0];
+            const stored = localStorage.getItem(NEWS_STORAGE_KEY);
+
+            if (stored) {
+                const storedDate = stored.split('T')[0];
+                if (storedDate === today) {
+                    // Already updated today
+                    setLastUpdate(stored);
+                    return;
+                }
+            }
+
+            // Needs update - simulate fetching new news
+            const now = new Date().toISOString();
+            localStorage.setItem(NEWS_STORAGE_KEY, now);
+            setLastUpdate(now);
+        };
+
+        checkDailyUpdate();
+    }, []);
+
+    // Manual refresh handler
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setTimeout(() => {
+            const now = new Date().toISOString();
+            localStorage.setItem(NEWS_STORAGE_KEY, now);
+            setLastUpdate(now);
+            setIsRefreshing(false);
+        }, 1000);
+    };
 
     // Filter news by portfolio holdings
     const filteredNews = useMemo(() => {
@@ -84,7 +137,22 @@ export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps
                         </span>
                     )}
                 </h3>
-                <span className="live-indicator">LIVE</span>
+                <div className="news-header-right">
+                    {lastUpdate && (
+                        <span className="last-update">
+                            <Clock size={12} />
+                            更新: {formatUpdateTime(lastUpdate)}
+                        </span>
+                    )}
+                    <button
+                        className="refresh-btn-small"
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                        title="ニュースを更新"
+                    >
+                        <RefreshCw size={14} className={isRefreshing ? 'spinning' : ''} />
+                    </button>
+                </div>
             </div>
             <div className="news-list">
                 {filteredNews.length === 0 ? (

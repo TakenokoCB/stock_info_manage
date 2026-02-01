@@ -1,6 +1,5 @@
 import { Eye, TrendingUp, TrendingDown, Coins, Gem, BarChart } from 'lucide-react';
 import { samplePortfolio } from '../../../data/sampleData';
-import { PortfolioAsset } from '../../../data/types';
 import './WatchList.css';
 
 // Helper to hydrate portfolio assets with simulated 24h market data
@@ -32,6 +31,10 @@ const getHydratedAssets = () => {
             price = asset.currentPrice;
             name = asset.name;
             symbol = asset.symbol;
+        } else if (asset.type === 'bond') {
+            price = asset.marketValue;
+            name = asset.name || '債券';
+            symbol = 'BOND';
         } else {
             price = 0;
             name = 'Unknown';

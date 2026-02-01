@@ -88,11 +88,11 @@ export default function SentimentHeatmap({ data, portfolioLinked = true }: Senti
 
     const displayData = useMemo(() => {
         if (portfolioLinked) {
-            // Use portfolio-based sentiment data
-            return generatePortfolioSentiment();
+            // Use portfolio-based sentiment data, limit to 5 items
+            return generatePortfolioSentiment().slice(0, 5);
         }
-        // Use provided data or mock data
-        return data || mockSentimentData;
+        // Use provided data or mock data, limit to 5 items
+        return (data || mockSentimentData).slice(0, 5);
     }, [data, portfolioLinked]);
 
     return (
