@@ -2,8 +2,12 @@ import {
     Briefcase,
     Newspaper,
     Activity,
-    Target
+    Target,
+    LogOut
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getMarketStatus, MarketInfo } from '../../utils/marketHours';
+import { useAuth } from '../../contexts/AuthContext';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -35,14 +39,10 @@ const navItems = [
     },
 ];
 
-import { useState, useEffect } from 'react';
-import { getMarketStatus, MarketInfo } from '../../utils/marketHours';
-
-// ... (existing imports)
-
 export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
     const [marketInfo, setMarketInfo] = useState<MarketInfo[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const { logout } = useAuth();
 
     useEffect(() => {
         // Initial fetch
@@ -66,6 +66,10 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
 
     const currentMarket = marketInfo[currentIndex] || { name: 'Loading...', status: 'closed' };
     const isMarketOpen = currentMarket.status === 'open';
+
+    const handleLogout = () => {
+        logout();
+    };
 
     return (
         <aside className="sidebar">
@@ -99,6 +103,10 @@ export default function Sidebar({ activePage, onPageChange }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
+                <button className="logout-button" onClick={handleLogout}>
+                    <LogOut size={16} />
+                    ログアウト
+                </button>
                 <div className="market-status">
                     <span className={`status-indicator ${isMarketOpen ? 'live' : 'closed'}`}></span>
                     <span className="status-text">
