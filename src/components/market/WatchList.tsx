@@ -1,11 +1,11 @@
 import { Eye, TrendingUp, TrendingDown, Coins, Gem, BarChart } from 'lucide-react';
-import { samplePortfolio } from '../../../data/sampleData';
+import { storedPortfolioAssets } from '../../../data/portfolioData';
 import './WatchList.css';
 
 // Helper to hydrate portfolio assets with simulated 24h market data
 // In a real app, this would come from an API
 const getHydratedAssets = () => {
-    return samplePortfolio.assets.map(asset => {
+    return storedPortfolioAssets.map(asset => {
         // Simulate random 24h change for demo based on asset type
         const volatility = asset.type === 'crypto' ? 0.05 : 0.02;
         const randomFactor = (Math.random() - 0.5) * 2 * volatility; // -X% to +X%
@@ -15,24 +15,26 @@ const getHydratedAssets = () => {
         let symbol = '';
 
         // Normalize fields based on asset type
+        // Use avgPrice as base since StoredPortfolioAsset doesn't have currentPrice
         if (asset.type === 'domestic_stock') {
-            price = asset.currentPrice;
+            // Simulate current price with ±5% from average
+            price = asset.avgPrice * (1 + (Math.random() - 0.5) * 0.1);
             name = asset.name;
             symbol = asset.code;
         } else if (asset.type === 'foreign_stock') {
-            price = asset.currentPriceUsd; // Show USD for US stocks
+            price = asset.avgPriceUsd * (1 + (Math.random() - 0.5) * 0.1);
             name = asset.name;
             symbol = asset.ticker;
         } else if (asset.type === 'investment_trust') {
-            price = asset.currentNavPrice;
+            price = asset.avgNavPrice * (1 + (Math.random() - 0.5) * 0.05);
             name = asset.name;
             symbol = 'FUND';
         } else if (asset.type === 'crypto') {
-            price = asset.currentPrice;
+            price = asset.avgPrice * (1 + (Math.random() - 0.5) * 0.15);
             name = asset.name;
             symbol = asset.symbol;
         } else if (asset.type === 'bond') {
-            price = asset.marketValue;
+            price = asset.acquisitionCost * (1 + (Math.random() - 0.5) * 0.02);
             name = asset.name || '債券';
             symbol = 'BOND';
         } else {

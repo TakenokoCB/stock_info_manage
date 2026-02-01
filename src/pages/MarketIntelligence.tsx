@@ -1,11 +1,11 @@
 import NewsFeed from '../components/market/NewsFeed';
 import SentimentHeatmap from '../components/market/SentimentHeatmap';
 import WatchList from '../components/market/WatchList';
-import { samplePortfolio } from '../../data/sampleData';
+import { storedPortfolioAssets } from '../../data/portfolioData';
 import './MarketIntelligence.css';
 
 export default function MarketIntelligence() {
-    const portfolioCount = samplePortfolio.assets.length;
+    const portfolioCount = storedPortfolioAssets.length;
 
     return (
         <div className="market-intelligence">

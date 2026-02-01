@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Flame, TrendingUp, TrendingDown, Briefcase } from 'lucide-react';
+import { Flame, TrendingUp, TrendingDown, Briefcase, Award } from 'lucide-react';
 import { SentimentData, sentimentData as mockSentimentData } from '../../data/mockData';
 import { storedPortfolioAssets } from '../../../data/portfolioData';
 import './SentimentHeatmap.css';
@@ -15,11 +15,11 @@ interface SentimentDataWithName extends SentimentData {
 }
 
 const getSentimentColor = (sentiment: number): string => {
-    if (sentiment >= 70) return 'hsl(142, 76%, 45%)';
+    if (sentiment >= 70) return 'var(--accent-success)';
     if (sentiment >= 50) return 'hsl(142, 60%, 35%)';
-    if (sentiment >= 30) return 'hsl(45, 60%, 45%)';
+    if (sentiment >= 30) return 'var(--accent-warning)';
     if (sentiment >= 10) return 'hsl(25, 70%, 45%)';
-    return 'hsl(0, 70%, 45%)';
+    return 'var(--accent-danger)';
 };
 
 const getSentimentLabel = (sentiment: number): string => {
@@ -57,7 +57,7 @@ const generatePortfolioSentiment = (): SentimentDataWithName[] => {
             symbol = 'FUND';
             // Shorten long fund names
             const fullName = asset.name || '';
-            name = fullName.length > 15 ? fullName.substring(0, 12) + '...' : fullName;
+            name = fullName.length > 20 ? fullName.substring(0, 17) + '...' : fullName;
         } else if (asset.type === 'bond') {
             symbol = 'BOND';
             name = '米国国債';
@@ -86,23 +86,34 @@ const generatePortfolioSentiment = (): SentimentDataWithName[] => {
 
 export default function SentimentHeatmap({ data, portfolioLinked = true }: SentimentHeatmapProps) {
     const displayData = useMemo(() => {
+        let items: SentimentDataWithName[];
+
         if (portfolioLinked) {
-            // Use portfolio-based sentiment data - show ALL portfolio items
-            return generatePortfolioSentiment();
+            items = generatePortfolioSentiment();
+        } else {
+            items = (data || mockSentimentData).map(item => ({
+                ...item,
+                name: item.symbol,
+            }));
         }
-        // Use provided data or mock data, add empty name field
-        return (data || mockSentimentData).map(item => ({
-            ...item,
-            name: item.symbol, // Fallback to symbol as name
-        }));
+
+        // Sort by sentiment score (highest first) for ranking
+        return items.sort((a, b) => b.overallSentiment - a.overallSentiment);
     }, [data, portfolioLinked]);
 
+    const getRankBadge = (rank: number) => {
+        if (rank === 1) return <span className="rank-badge gold"><Award size={12} />1</span>;
+        if (rank === 2) return <span className="rank-badge silver"><Award size={12} />2</span>;
+        if (rank === 3) return <span className="rank-badge bronze"><Award size={12} />3</span>;
+        return <span className="rank-number">{rank}</span>;
+    };
+
     return (
-        <div className="sentiment-heatmap card">
+        <div className="sentiment-heatmap sentiment-list card">
             <div className="card-header">
                 <h3 className="card-title">
                     <Flame size={18} />
-                    センチメント・ヒートマップ
+                    センチメントランキング
                     {portfolioLinked && (
                         <span className="portfolio-badge">
                             <Briefcase size={12} />
@@ -112,24 +123,38 @@ export default function SentimentHeatmap({ data, portfolioLinked = true }: Senti
                 </h3>
                 <span className="live-indicator">LIVE</span>
             </div>
-            <div className="heatmap-grid" style={{ '--item-count': displayData.length } as React.CSSProperties}>
-                {displayData.map((item) => (
+            <div className="sentiment-ranking-list">
+                <div className="ranking-header">
+                    <span className="ranking-col-rank">順位</span>
+                    <span className="ranking-col-name">銘柄</span>
+                    <span className="ranking-col-score">スコア</span>
+                    <span className="ranking-col-change">変化</span>
+                    <span className="ranking-col-mentions">𝕏</span>
+                </div>
+                {displayData.map((item, index) => (
                     <div
                         key={item.assetId}
-                        className="heatmap-cell"
-                        style={{
-                            '--cell-color': getSentimentColor(item.overallSentiment),
-                        } as React.CSSProperties}
+                        className={`ranking-row ${item.trending ? 'trending' : ''}`}
                     >
-                        <div className="cell-header">
-                            <span className="cell-name">{item.name}</span>
+                        <div className="ranking-col-rank">
+                            {getRankBadge(index + 1)}
+                        </div>
+                        <div className="ranking-col-name">
+                            <span className="asset-name">{item.name}</span>
                             {item.trending && <Flame size={12} className="trending-icon" />}
                         </div>
-                        <div className="cell-sentiment">
-                            <span className="sentiment-value">{item.overallSentiment}</span>
-                            <span className="sentiment-label">{getSentimentLabel(item.overallSentiment)}</span>
+                        <div className="ranking-col-score">
+                            <div
+                                className="score-bar"
+                                style={{
+                                    width: `${item.overallSentiment}%`,
+                                    background: getSentimentColor(item.overallSentiment)
+                                }}
+                            />
+                            <span className="score-value">{item.overallSentiment}</span>
+                            <span className="score-label">{getSentimentLabel(item.overallSentiment)}</span>
                         </div>
-                        <div className="cell-change">
+                        <div className="ranking-col-change">
                             {item.changeFromYesterday >= 0 ? (
                                 <TrendingUp size={12} className="change-icon positive" />
                             ) : (
@@ -139,15 +164,8 @@ export default function SentimentHeatmap({ data, portfolioLinked = true }: Senti
                                 {item.changeFromYesterday >= 0 ? '+' : ''}{item.changeFromYesterday}%
                             </span>
                         </div>
-                        <div className="cell-mentions">
-                            <div className="mention-row">
-                                <span className="mention-label">𝕏</span>
-                                <span className="mention-value">{formatNumber(item.twitterMentions)}</span>
-                            </div>
-                            <div className="mention-row">
-                                <span className="mention-label">掲示板</span>
-                                <span className="mention-value">{formatNumber(item.redditMentions)}</span>
-                            </div>
+                        <div className="ranking-col-mentions">
+                            {formatNumber(item.twitterMentions)}
                         </div>
                     </div>
                 ))}
