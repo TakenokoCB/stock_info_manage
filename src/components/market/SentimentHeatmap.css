@@ -1,14 +1,14 @@
 /* Sentiment List/Ranking Styles */
 .sentiment-heatmap.sentiment-list {
     height: auto;
-    max-height: 500px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .sentiment-ranking-list {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 /* Ranking Header */
