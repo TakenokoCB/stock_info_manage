@@ -5,7 +5,7 @@
 /* Panel Grid Layout */
 .watchlist-panel-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-sm);
     padding: var(--spacing-sm);
 }
