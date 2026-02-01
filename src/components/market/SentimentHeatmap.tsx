@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Flame, TrendingUp, TrendingDown, Briefcase } from 'lucide-react';
 import { SentimentData, sentimentData as mockSentimentData } from '../../data/mockData';
-import { samplePortfolio } from '../../../data/sampleData';
+import { storedPortfolioAssets } from '../../../data/portfolioData';
 import './SentimentHeatmap.css';
 
 interface SentimentHeatmapProps {
@@ -37,7 +37,8 @@ const formatNumber = (num: number): string => {
 
 // Generate sentiment data for portfolio holdings with names
 const generatePortfolioSentiment = (): SentimentDataWithName[] => {
-    const portfolioAssets = samplePortfolio.assets;
+    // Use actual portfolio data, not sample data
+    const portfolioAssets = storedPortfolioAssets;
 
     return portfolioAssets.map((asset, index) => {
         let symbol = '';
@@ -86,11 +87,11 @@ const generatePortfolioSentiment = (): SentimentDataWithName[] => {
 export default function SentimentHeatmap({ data, portfolioLinked = true }: SentimentHeatmapProps) {
     const displayData = useMemo(() => {
         if (portfolioLinked) {
-            // Use portfolio-based sentiment data, limit to 10 items (2 rows x 5)
-            return generatePortfolioSentiment().slice(0, 10);
+            // Use portfolio-based sentiment data - show ALL portfolio items
+            return generatePortfolioSentiment();
         }
         // Use provided data or mock data, add empty name field
-        return (data || mockSentimentData).slice(0, 10).map(item => ({
+        return (data || mockSentimentData).map(item => ({
             ...item,
             name: item.symbol, // Fallback to symbol as name
         }));
