@@ -29,12 +29,48 @@ export default function Screener() {
     });
     const [aiReasoning, setAiReasoning] = useState<Record<string, string>>({});
     const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiStatus, setAiStatus] = useState<'ready' | 'unavailable' | 'loading'>('loading');
+
+    // Fallback analysis generator (when Gemini Nano is unavailable)
+    const generateFallbackAnalysis = (asset: typeof screenerAssets[0]): string => {
+        const positives: string[] = [];
+        const negatives: string[] = [];
+
+        if (asset.aiScore >= 80) positives.push('AI高評価');
+        else if (asset.aiScore < 50) negatives.push('AI低評価');
+
+        if (asset.snsBuzz >= 70) positives.push('SNS注目度高');
+        else if (asset.snsBuzz < 30) negatives.push('SNS関心低');
+
+        if (asset.change >= 2) positives.push('上昇トレンド');
+        else if (asset.change <= -2) negatives.push('下落傾向');
+
+        if (positives.length > negatives.length) {
+            return `${positives.join('・')}。買い検討の好機。`;
+        } else if (negatives.length > positives.length) {
+            return `${negatives.join('・')}。慎重な姿勢推奨。`;
+        }
+        return 'AI/SNS指標は中立。市場動向を注視。';
+    };
 
     // Gemini Nano Analysis Effect
     useEffect(() => {
         const analyzeAssets = async () => {
-            if (!window.ai) {
-                console.log('Gemini Nano not available');
+            const targetAssets = [...screenerAssets]
+                .sort((a, b) => b.aiScore - a.aiScore)
+                .slice(0, 5);
+
+            // Check if Gemini Nano is available
+            if (!window.ai || !window.ai.languageModel) {
+                console.log('Gemini Nano not available, using fallback analysis');
+                setAiStatus('unavailable');
+
+                // Generate fallback analysis
+                const fallbackReasoning: Record<string, string> = {};
+                targetAssets.forEach(asset => {
+                    fallbackReasoning[asset.id] = generateFallbackAnalysis(asset);
+                });
+                setAiReasoning(fallbackReasoning);
                 return;
             }
 
@@ -42,6 +78,7 @@ export default function Screener() {
             if (Object.keys(aiReasoning).length > 0) return;
 
             setIsAiLoading(true);
+            setAiStatus('loading');
             const newReasoning: Record<string, string> = {};
 
             try {
@@ -49,27 +86,27 @@ export default function Screener() {
                 const capabilities = await window.ai.languageModel.capabilities();
                 if (capabilities.available === 'no') {
                     console.log('Gemini Nano is not available on this device');
+                    setAiStatus('unavailable');
+                    // Use fallback
+                    targetAssets.forEach(asset => {
+                        newReasoning[asset.id] = generateFallbackAnalysis(asset);
+                    });
+                    setAiReasoning(newReasoning);
                     return;
                 }
 
                 // Create a session
                 const session = await window.ai.languageModel.create();
-
-                // Analyze top 5 assets by AI Score to save resources (demo)
-                const targetAssets = [...screenerAssets]
-                    .sort((a, b) => b.aiScore - a.aiScore)
-                    .slice(0, 5);
+                setAiStatus('ready');
 
                 for (const asset of targetAssets) {
-                    const prompt = `
-                        Analyze this stock concisely in one sentence:
-                        Name: ${asset.name}
-                        Sector: ${asset.sector}
-                        SNS Buzz Score: ${asset.snsBuzz}/100
-                        AI Technical Score: ${asset.aiScore}/100
-                        Price Change: ${asset.change}%
-                        Reason for selection:
-                    `;
+                    const prompt = `日本語で1文で分析してください。
+銘柄: ${asset.name}
+セクター: ${asset.sector}
+SNS注目度: ${asset.snsBuzz}/100
+AIスコア: ${asset.aiScore}/100
+株価変動: ${asset.change}%
+この銘柄の投資判断の理由:`;
 
                     const result = await session.prompt(prompt);
                     newReasoning[asset.id] = result.trim();
@@ -78,6 +115,12 @@ export default function Screener() {
                 setAiReasoning(newReasoning);
             } catch (error) {
                 console.error('AI Analysis failed:', error);
+                setAiStatus('unavailable');
+                // Use fallback on error
+                targetAssets.forEach(asset => {
+                    newReasoning[asset.id] = generateFallbackAnalysis(asset);
+                });
+                setAiReasoning(newReasoning);
             } finally {
                 setIsAiLoading(false);
             }

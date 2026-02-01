@@ -1,7 +1,7 @@
 import NewsFeed from '../components/market/NewsFeed';
 import SentimentHeatmap from '../components/market/SentimentHeatmap';
 import WatchList from '../components/market/WatchList';
-import { newsItems, sentimentData, watchlistAssets } from '../data/mockData';
+import { newsItems, sentimentData } from '../data/mockData';
 import './MarketIntelligence.css';
 
 export default function MarketIntelligence() {
@@ -34,7 +34,7 @@ export default function MarketIntelligence() {
                 </div>
                 <div className="market-side">
                     <SentimentHeatmap data={sentimentData} />
-                    <WatchList assets={watchlistAssets} />
+                    <WatchList />
                 </div>
             </div>
         </div>
