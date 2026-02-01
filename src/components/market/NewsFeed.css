@@ -229,3 +229,81 @@
         transform: rotate(360deg);
     }
 }
+
+/* Loading State */
+.news-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-md);
+    color: var(--text-muted);
+}
+
+.news-loading .spinning {
+    animation: spin 1s linear infinite;
+    color: var(--accent-primary);
+}
+
+/* Error State */
+.news-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-sm);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.news-error svg {
+    color: var(--accent-warning);
+}
+
+.news-error-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.news-error-hint code {
+    background: var(--bg-input);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+}
+
+.retry-btn {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--accent-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.retry-btn:hover {
+    background: var(--accent-primary-hover);
+}
+
+/* External Link */
+.news-title a {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.news-title a:hover {
+    color: var(--accent-primary);
+}
+
+.external-link-icon {
+    opacity: 0.5;
+    flex-shrink: 0;
+}

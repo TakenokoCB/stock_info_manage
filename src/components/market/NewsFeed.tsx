@@ -1,15 +1,11 @@
-import { useMemo, useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Minus, Sparkles, Briefcase, RefreshCw, Clock } from 'lucide-react';
-import { NewsItem, newsItems } from '../../data/mockData';
-import { samplePortfolio } from '../../../data/sampleData';
+import { useState, useEffect, useCallback } from 'react';
+import { TrendingUp, TrendingDown, Minus, Sparkles, Briefcase, RefreshCw, Clock, ExternalLink, AlertCircle } from 'lucide-react';
+import { fetchNews, checkNewsServerHealth, RssNewsItem } from '../../services/newsApi';
 import './NewsFeed.css';
 
 interface NewsFeedProps {
-    news?: NewsItem[];
     portfolioLinked?: boolean;
 }
-
-const NEWS_STORAGE_KEY = 'newsfeed_last_update';
 
 const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
@@ -32,17 +28,6 @@ const getTimeAgo = (timestamp: string) => {
     return `${Math.floor(diff / 1440)}日前`;
 };
 
-// Get portfolio symbols for filtering
-const getPortfolioSymbols = (): string[] => {
-    return samplePortfolio.assets.map(asset => {
-        if (asset.type === 'domestic_stock') return asset.code || '';
-        if (asset.type === 'foreign_stock') return asset.ticker || '';
-        if (asset.type === 'crypto') return asset.symbol || '';
-        return asset.name || '';
-    }).filter(Boolean);
-};
-
-// Format timestamp for display
 const formatUpdateTime = (isoString: string): string => {
     try {
         const date = new Date(isoString);
@@ -56,73 +41,59 @@ const formatUpdateTime = (isoString: string): string => {
     }
 };
 
-export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps) {
+export default function NewsFeed({ portfolioLinked = true }: NewsFeedProps) {
+    const [news, setNews] = useState<RssNewsItem[]>([]);
     const [lastUpdate, setLastUpdate] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const portfolioSymbols = useMemo(() => getPortfolioSymbols(), []);
+    const [serverAvailable, setServerAvailable] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Check and update on mount
-    useEffect(() => {
-        const checkDailyUpdate = () => {
-            const today = new Date().toISOString().split('T')[0];
-            const stored = localStorage.getItem(NEWS_STORAGE_KEY);
+    const loadNews = useCallback(async (showRefreshIndicator = false) => {
+        if (showRefreshIndicator) {
+            setIsRefreshing(true);
+        }
+        setError(null);
 
-            if (stored) {
-                const storedDate = stored.split('T')[0];
-                if (storedDate === today) {
-                    // Already updated today
-                    setLastUpdate(stored);
-                    return;
-                }
+        try {
+            // Check server health first
+            const isHealthy = await checkNewsServerHealth();
+            setServerAvailable(isHealthy);
+
+            if (!isHealthy) {
+                setError('ニュースサーバーに接続できません。サーバーを起動してください。');
+                setIsLoading(false);
+                setIsRefreshing(false);
+                return;
             }
 
-            // Needs update - simulate fetching new news
-            const now = new Date().toISOString();
-            localStorage.setItem(NEWS_STORAGE_KEY, now);
-            setLastUpdate(now);
-        };
+            const response = await fetchNews(20);
 
-        checkDailyUpdate();
+            if (response.success) {
+                setNews(response.news);
+                setLastUpdate(response.updatedAt);
+            } else {
+                setError(response.error || 'ニュースの取得に失敗しました');
+            }
+        } catch (err) {
+            setError('ニュースの取得中にエラーが発生しました');
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
     }, []);
 
-    // Manual refresh handler
+    useEffect(() => {
+        loadNews();
+
+        // Refresh every 5 minutes
+        const interval = setInterval(() => loadNews(), 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [loadNews]);
+
     const handleRefresh = () => {
-        setIsRefreshing(true);
-        setTimeout(() => {
-            const now = new Date().toISOString();
-            localStorage.setItem(NEWS_STORAGE_KEY, now);
-            setLastUpdate(now);
-            setIsRefreshing(false);
-        }, 1000);
+        loadNews(true);
     };
-
-    // Filter news by portfolio holdings
-    const filteredNews = useMemo(() => {
-        const sourceNews = news || newsItems;
-
-        if (!portfolioLinked) {
-            return sourceNews;
-        }
-
-        // Filter news that are related to portfolio assets
-        return sourceNews.filter(item => {
-            // Check if any related asset matches portfolio
-            return item.relatedAssets.some(asset => {
-                // Normalize asset name for comparison
-                const normalizedAsset = asset.toLowerCase();
-                return portfolioSymbols.some(symbol => {
-                    const normalizedSymbol = symbol.toLowerCase();
-                    return normalizedAsset.includes(normalizedSymbol) ||
-                        normalizedSymbol.includes(normalizedAsset) ||
-                        // Common mappings
-                        (normalizedAsset === 'トヨタ' && normalizedSymbol === '7203') ||
-                        (normalizedAsset === 'apple' && normalizedSymbol === 'aapl') ||
-                        (normalizedAsset === 'btc' && normalizedSymbol === 'btc') ||
-                        (normalizedAsset === 'nvidia' && normalizedSymbol === 'nvda');
-                });
-            });
-        });
-    }, [news, portfolioLinked, portfolioSymbols]);
 
     return (
         <div className="news-feed card">
@@ -155,12 +126,36 @@ export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps
                 </div>
             </div>
             <div className="news-list">
-                {filteredNews.length === 0 ? (
+                {isLoading ? (
+                    <div className="news-loading">
+                        <RefreshCw size={24} className="spinning" />
+                        <p>ニュースを読み込み中...</p>
+                    </div>
+                ) : !serverAvailable ? (
+                    <div className="news-error">
+                        <AlertCircle size={24} />
+                        <p>ニュースサーバーに接続できません</p>
+                        <p className="news-error-hint">
+                            <code>cd server && npm run dev</code> でサーバーを起動してください
+                        </p>
+                        <button className="retry-btn" onClick={() => loadNews()}>
+                            再試行
+                        </button>
+                    </div>
+                ) : error ? (
+                    <div className="news-error">
+                        <AlertCircle size={24} />
+                        <p>{error}</p>
+                        <button className="retry-btn" onClick={() => loadNews()}>
+                            再試行
+                        </button>
+                    </div>
+                ) : news.length === 0 ? (
                     <div className="no-news">
                         <p>保有銘柄に関連するニュースがありません</p>
                     </div>
                 ) : (
-                    filteredNews.map((item) => (
+                    news.map((item) => (
                         <article key={item.id} className={`news-item sentiment-${item.sentiment}`}>
                             <div className="news-header">
                                 <div className="news-meta">
@@ -177,7 +172,16 @@ export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps
                                     <span className="ai-score-value">{item.aiScore}</span>
                                 </div>
                             </div>
-                            <h4 className="news-title">{item.title}</h4>
+                            <h4 className="news-title">
+                                {item.link ? (
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                        {item.title}
+                                        <ExternalLink size={12} className="external-link-icon" />
+                                    </a>
+                                ) : (
+                                    item.title
+                                )}
+                            </h4>
                             <ul className="news-summary">
                                 {item.summary.map((point, index) => (
                                     <li key={index}>{point}</li>
@@ -185,7 +189,7 @@ export default function NewsFeed({ news, portfolioLinked = true }: NewsFeedProps
                             </ul>
                             <div className="news-assets">
                                 {item.relatedAssets.map((asset) => (
-                                    <span key={asset} className={`asset-tag ${portfolioSymbols.some(s => asset.toLowerCase().includes(s.toLowerCase())) ? 'portfolio-match' : ''}`}>{asset}</span>
+                                    <span key={asset} className="asset-tag portfolio-match">{asset}</span>
                                 ))}
                             </div>
                         </article>
