@@ -81,3 +81,16 @@
     grid-row: 2;
     min-height: 0;
 }
+
+/* Simplified layout for Screener only */
+.tactical-grid-simple {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.tactical-screener-full {
+    flex: 1;
+    min-height: 0;
+}

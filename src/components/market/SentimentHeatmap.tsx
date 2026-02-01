@@ -1,9 +1,12 @@
-import { Flame, TrendingUp, TrendingDown } from 'lucide-react';
-import { SentimentData } from '../../data/mockData';
+import { useMemo } from 'react';
+import { Flame, TrendingUp, TrendingDown, Briefcase } from 'lucide-react';
+import { SentimentData, sentimentData as mockSentimentData } from '../../data/mockData';
+import { samplePortfolio } from '../../../data/sampleData';
 import './SentimentHeatmap.css';
 
 interface SentimentHeatmapProps {
-    data: SentimentData[];
+    data?: SentimentData[];
+    portfolioLinked?: boolean;
 }
 
 const getSentimentColor = (sentiment: number): string => {
@@ -27,21 +30,91 @@ const formatNumber = (num: number): string => {
     return num.toString();
 };
 
-export default function SentimentHeatmap({ data }: SentimentHeatmapProps) {
+// Get portfolio symbols for filtering
+const getPortfolioSymbols = (): string[] => {
+    return samplePortfolio.assets.map(asset => {
+        if (asset.type === 'domestic_stock') return asset.code || '';
+        if (asset.type === 'foreign_stock') return asset.ticker || '';
+        if (asset.type === 'crypto') return asset.symbol || '';
+        return '';
+    }).filter(Boolean);
+};
+
+// Generate sentiment data for portfolio holdings
+const generatePortfolioSentiment = (): SentimentData[] => {
+    const portfolioAssets = samplePortfolio.assets;
+
+    return portfolioAssets.map((asset, index) => {
+        let symbol = '';
+        let name = '';
+
+        if (asset.type === 'domestic_stock') {
+            symbol = asset.code || '';
+            name = asset.name || '';
+        } else if (asset.type === 'foreign_stock') {
+            symbol = asset.ticker || '';
+            name = asset.name || '';
+        } else if (asset.type === 'crypto') {
+            symbol = asset.symbol || '';
+            name = asset.name || '';
+        } else if (asset.type === 'investment_trust') {
+            symbol = 'FUND';
+            name = asset.name?.substring(0, 10) || '';
+        } else {
+            symbol = 'BOND';
+            name = '債券';
+        }
+
+        // Generate pseudo-random but consistent sentiment based on asset
+        const baseScore = 40 + (index * 7) % 50;
+        const change = ((index * 3) % 15) - 5;
+        const twitterMentions = 500 + (index * 123) % 5000;
+        const redditMentions = 100 + (index * 47) % 1000;
+
+        return {
+            assetId: symbol || `asset-${index}`,
+            symbol: symbol || name.substring(0, 4),
+            overallSentiment: baseScore,
+            changeFromYesterday: change,
+            trending: baseScore > 60 && change > 3,
+            twitterMentions,
+            redditMentions,
+        };
+    }).filter(item => item.symbol);
+};
+
+export default function SentimentHeatmap({ data, portfolioLinked = true }: SentimentHeatmapProps) {
+    const portfolioSymbols = useMemo(() => getPortfolioSymbols(), []);
+
+    const displayData = useMemo(() => {
+        if (portfolioLinked) {
+            // Use portfolio-based sentiment data
+            return generatePortfolioSentiment();
+        }
+        // Use provided data or mock data
+        return data || mockSentimentData;
+    }, [data, portfolioLinked]);
+
     return (
         <div className="sentiment-heatmap card">
             <div className="card-header">
                 <h3 className="card-title">
                     <Flame size={18} />
                     センチメント・ヒートマップ
+                    {portfolioLinked && (
+                        <span className="portfolio-badge">
+                            <Briefcase size={12} />
+                            保有銘柄
+                        </span>
+                    )}
                 </h3>
                 <span className="live-indicator">LIVE</span>
             </div>
             <div className="heatmap-grid">
-                {data.map((item) => (
+                {displayData.map((item) => (
                     <div
                         key={item.assetId}
-                        className={`heatmap-cell ${item.trending ? 'trending' : ''}`}
+                        className={`heatmap-cell ${item.trending ? 'trending' : ''} ${portfolioSymbols.includes(item.symbol) ? 'portfolio-item' : ''}`}
                         style={{
                             '--cell-color': getSentimentColor(item.overallSentiment),
                         } as React.CSSProperties}

@@ -13,18 +13,18 @@ interface SidebarProps {
 
 const navItems = [
     {
-        id: 'market',
-        label: 'Market Intelligence',
-        labelJa: 'AI分析',
-        icon: Newspaper,
-        description: 'ニュース・センチメント分析',
-    },
-    {
         id: 'portfolio',
         label: 'Portfolio Simulator',
         labelJa: 'ポートフォリオ',
         icon: Briefcase,
         description: '配当・将来予測',
+    },
+    {
+        id: 'market',
+        label: 'Market Intelligence',
+        labelJa: 'AI分析',
+        icon: Newspaper,
+        description: 'ニュース・センチメント分析',
     },
     {
         id: 'tactical',
