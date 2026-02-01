@@ -1,11 +1,12 @@
 .sentiment-heatmap {
-    height: 100%;
+    height: auto;
 }
 
 .heatmap-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: var(--spacing-sm);
+    width: fit-content;
 }
 
 .heatmap-cell {
@@ -69,6 +70,17 @@
     font-family: var(--font-mono);
     color: white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.cell-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
 }
 
 .trending-icon {

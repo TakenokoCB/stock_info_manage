@@ -9,6 +9,11 @@ interface SentimentHeatmapProps {
     portfolioLinked?: boolean;
 }
 
+// Extended type with name
+interface SentimentDataWithName extends SentimentData {
+    name: string;
+}
+
 const getSentimentColor = (sentiment: number): string => {
     if (sentiment >= 70) return 'hsl(142, 76%, 45%)';
     if (sentiment >= 50) return 'hsl(142, 60%, 35%)';
@@ -30,18 +35,8 @@ const formatNumber = (num: number): string => {
     return num.toString();
 };
 
-// Get portfolio symbols for filtering
-const getPortfolioSymbols = (): string[] => {
-    return samplePortfolio.assets.map(asset => {
-        if (asset.type === 'domestic_stock') return asset.code || '';
-        if (asset.type === 'foreign_stock') return asset.ticker || '';
-        if (asset.type === 'crypto') return asset.symbol || '';
-        return '';
-    }).filter(Boolean);
-};
-
-// Generate sentiment data for portfolio holdings
-const generatePortfolioSentiment = (): SentimentData[] => {
+// Generate sentiment data for portfolio holdings with names
+const generatePortfolioSentiment = (): SentimentDataWithName[] => {
     const portfolioAssets = samplePortfolio.assets;
 
     return portfolioAssets.map((asset, index) => {
@@ -59,10 +54,14 @@ const generatePortfolioSentiment = (): SentimentData[] => {
             name = asset.name || '';
         } else if (asset.type === 'investment_trust') {
             symbol = 'FUND';
-            name = asset.name?.substring(0, 10) || '';
-        } else {
+            // Shorten long fund names
+            const fullName = asset.name || '';
+            name = fullName.length > 15 ? fullName.substring(0, 12) + '...' : fullName;
+        } else if (asset.type === 'bond') {
             symbol = 'BOND';
-            name = '債券';
+            name = '米国国債';
+        } else {
+            return null;
         }
 
         // Generate pseudo-random but consistent sentiment based on asset
@@ -73,26 +72,28 @@ const generatePortfolioSentiment = (): SentimentData[] => {
 
         return {
             assetId: symbol || `asset-${index}`,
-            symbol: symbol || name.substring(0, 4),
+            symbol: symbol,
+            name: name,
             overallSentiment: baseScore,
             changeFromYesterday: change,
             trending: baseScore > 60 && change > 3,
             twitterMentions,
             redditMentions,
         };
-    }).filter(item => item.symbol);
+    }).filter((item): item is SentimentDataWithName => item !== null && item.symbol !== '');
 };
 
 export default function SentimentHeatmap({ data, portfolioLinked = true }: SentimentHeatmapProps) {
-    const portfolioSymbols = useMemo(() => getPortfolioSymbols(), []);
-
     const displayData = useMemo(() => {
         if (portfolioLinked) {
-            // Use portfolio-based sentiment data, limit to 5 items
-            return generatePortfolioSentiment().slice(0, 5);
+            // Use portfolio-based sentiment data, limit to 10 items (2 rows x 5)
+            return generatePortfolioSentiment().slice(0, 10);
         }
-        // Use provided data or mock data, limit to 5 items
-        return (data || mockSentimentData).slice(0, 5);
+        // Use provided data or mock data, add empty name field
+        return (data || mockSentimentData).slice(0, 10).map(item => ({
+            ...item,
+            name: item.symbol, // Fallback to symbol as name
+        }));
     }, [data, portfolioLinked]);
 
     return (
@@ -110,17 +111,17 @@ export default function SentimentHeatmap({ data, portfolioLinked = true }: Senti
                 </h3>
                 <span className="live-indicator">LIVE</span>
             </div>
-            <div className="heatmap-grid">
+            <div className="heatmap-grid" style={{ '--item-count': displayData.length } as React.CSSProperties}>
                 {displayData.map((item) => (
                     <div
                         key={item.assetId}
-                        className={`heatmap-cell ${item.trending ? 'trending' : ''} ${portfolioSymbols.includes(item.symbol) ? 'portfolio-item' : ''}`}
+                        className="heatmap-cell"
                         style={{
                             '--cell-color': getSentimentColor(item.overallSentiment),
                         } as React.CSSProperties}
                     >
                         <div className="cell-header">
-                            <span className="cell-symbol">{item.symbol}</span>
+                            <span className="cell-name">{item.name}</span>
                             {item.trending && <Flame size={12} className="trending-icon" />}
                         </div>
                         <div className="cell-sentiment">
